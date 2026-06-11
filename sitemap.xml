@@ -1,59 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bilguunbatsaikhan.com/about.html</loc>
-    <lastmod>2026-06-11T05:42:31.603Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/causal-inference.html</loc>
+    <lastmod>2026-06-11T06:07:07.536Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/posts/the-claude-architecture-from-xml-tags-to-100m-weight-updates/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.552Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/index.html</loc>
+    <lastmod>2026-06-11T04:40:08.301Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.545Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/posts/recommendations-as-treatments/index.html</loc>
+    <lastmod>2026-06-11T06:07:36.599Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/posts/takeaways-from-kaggle-jane-street-market-prediction-competition/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.551Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/data-engineering/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.548Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/not-so-easy-poc/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.550Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/when-linear-regression-gets-massively-confused/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.552Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.549Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/deep-dive-into-mlops/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.548Z</lastmod>
-  </url>
-  <url>
-    <loc>https://bilguunbatsaikhan.com/posts/changes-to-my-workflow/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.547Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/posts/causal-inference-cheatsheet/index.html</loc>
+    <lastmod>2026-06-11T06:07:36.597Z</lastmod>
   </url>
   <url>
     <loc>https://bilguunbatsaikhan.com/posts/relationship-of-covariance-and-dot-product/index.html</loc>
     <lastmod>2026-06-11T05:56:23.551Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/posts/causal-inference-cheatsheet/index.html</loc>
-    <lastmod>2026-06-11T05:56:23.545Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/posts/changes-to-my-workflow/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.547Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/posts/recommendations-as-treatments/index.html</loc>
+    <loc>https://bilguunbatsaikhan.com/posts/deep-dive-into-mlops/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.548Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html</loc>
+    <lastmod>2026-06-11T06:07:36.599Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/when-linear-regression-gets-massively-confused/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.552Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/not-so-easy-poc/index.html</loc>
     <lastmod>2026-06-11T05:56:23.550Z</lastmod>
   </url>
   <url>
-    <loc>https://bilguunbatsaikhan.com/index.html</loc>
-    <lastmod>2026-06-11T04:40:08.301Z</lastmod>
+    <loc>https://bilguunbatsaikhan.com/posts/data-engineering/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.548Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/takeaways-from-kaggle-jane-street-market-prediction-competition/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.551Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html</loc>
+    <lastmod>2026-06-11T06:07:36.598Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/posts/the-claude-architecture-from-xml-tags-to-100m-weight-updates/index.html</loc>
+    <lastmod>2026-06-11T05:56:23.552Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bilguunbatsaikhan.com/about.html</loc>
+    <lastmod>2026-06-11T05:42:31.603Z</lastmod>
   </url>
 </urlset>

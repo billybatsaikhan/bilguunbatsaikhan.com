@@ -257,6 +257,13 @@ I wrote proofs, shipped a production API, dispatched thousands of training jobs,
 <li>A Practical Introduction to Bayesian Estimation of Causal Effects …, accessed April 3, 2025, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8640942/" class="uri">https://pmc.ncbi.nlm.nih.gov/articles/PMC8640942/</a></li>
 <li>Bayesian Causal Inference for Observational Studies with Missingness in Covariates and Outcomes | Biometrics | Oxford Academic, accessed April 3, 2025, <a href="https://academic.oup.com/biometrics/article/79/4/3624/7587588" class="uri">https://academic.oup.com/biometrics/article/79/4/3624/7587588</a></li>
 </ol>
+<hr>
+<p><strong>More causal inference notes:</strong></p>
+<ul>
+<li><a href="../causal-inference-cheatsheet/">Causal inference cheatsheet</a></li>
+<li><a href="../causal-inference-assessing-overlap-in-covariate-distributions/">Assessing overlap in covariate distributions</a></li>
+<li><a href="../recommendations-as-treatments/">Recommendations as treatments</a></li>
+</ul>
 
 
 </section>
@@ -583,6 +590,13 @@ We can estimate the degree of units with close comparison units by defining an i
 <p>, then for each T &amp; C we can define two overlap measures implying the proportion of units with close comparisons:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0Aq_c%20=%20%5Cfrac%7B1%7D%7BN_c%7D%20%5Csum_%7Bi:W_i=0%7D%20%5Cvarsigma_i%0A%5Cquad%5Ctext%7Band%7D%5Cquad%0Aq_t%20=%20%5Cfrac%7B1%7D%7BN_t%7D%20%5Csum_%7Bi:W_i=1%7D%20%5Cvarsigma_i%0A"></p>
 <hr>
+<hr>
+<p><strong>More causal inference notes:</strong></p>
+<ul>
+<li><a href="../causal-inference-cheatsheet/">Causal inference cheatsheet</a></li>
+<li><a href="../gemini-deep-research-summary-of-the-state-of-ovb/">Estimating the distribution of omitted variable bias</a></li>
+<li><a href="../recommendations-as-treatments/">Recommendations as treatments</a></li>
+</ul>
 
 
 </section>
@@ -603,7 +617,7 @@ We can estimate the degree of units with close comparison units by defining an i
 
 
 
-<p>This is the summary of “Recommendations as Treatments” <a href="https://www.google.com/url?sa=t&amp;source=web&amp;rct=j&amp;opi=89978449&amp;url=https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875&amp;ved=2ahUKEwiIrfqMotqGAxXerlYBHcPQD70QFnoECBsQAQ&amp;usg=AOvVaw1LcYU_15mHx4LhSr_GqiDS">(paper</a>) by Joachims et al.</p>
+<p>This is the summary of “Recommendations as Treatments” (<a href="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875">paper</a>) by Joachims et al.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://bilguunbatsaikhan.com/images/2024/06/Screenshot-2024-06-17-at-13.26.47.png" class="img-fluid figure-img"></p>
@@ -665,10 +679,19 @@ We can estimate the degree of units with close comparison units by defining an i
 <p>By weighting each observed interaction with the inverse propensity of the production policy, we are essentially placing more importance on samples with lower probability to be recommended by the production policy and placing lower importance on samples with higher probability.</p>
 <p>As illustrated in the examples above, this helps us to understand if the new policy performs better than the existing policy.</p>
 <p>This summary captures the main idea behind using Causal Inference techniques in the context of recommendation engines. I have left out several interesting gems presented in the original paper (e.g.&nbsp;counterfactual risk minimization, fairness of recommendation engines, etc.), so have a look at the paper if you are interested in learning more :).</p>
+<hr>
+<p><strong>More causal inference notes:</strong></p>
+<ul>
+<li><a href="../causal-inference-cheatsheet/">Causal inference cheatsheet</a></li>
+<li><a href="../causal-inference-assessing-overlap-in-covariate-distributions/">Assessing overlap in covariate distributions</a></li>
+<li><a href="../gemini-deep-research-summary-of-the-state-of-ovb/">Estimating the distribution of omitted variable bias</a></li>
+</ul>
 
 
 
  ]]></description>
+  <category>CausalInference</category>
+  <category>Recommendations</category>
   <guid>https://bilguunbatsaikhan.com/posts/recommendations-as-treatments/</guid>
   <pubDate>Sun, 16 Jun 2024 15:00:00 GMT</pubDate>
 </item>
@@ -893,6 +916,13 @@ We can estimate the degree of units with close comparison units by defining an i
 <li>Stress the key assumption, not the data. More features won’t save a design whose identification is broken.</li>
 <li>Run a sensitivity analysis. “How big would an unobserved confounder have to be to flip this?” is often more honest than the point estimate.</li>
 <li>Be suspicious of a clean answer from messy observational data. It usually means an assumption is doing more work than you realize.</li>
+</ul>
+<hr>
+<p><strong>More causal inference notes:</strong></p>
+<ul>
+<li><a href="../causal-inference-assessing-overlap-in-covariate-distributions/">Assessing overlap in covariate distributions</a></li>
+<li><a href="../gemini-deep-research-summary-of-the-state-of-ovb/">Estimating the distribution of omitted variable bias</a></li>
+<li><a href="../recommendations-as-treatments/">Recommendations as treatments</a></li>
 </ul>
 
 

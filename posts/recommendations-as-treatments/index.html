@@ -106,6 +106,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../causal-inference.html"> 
+<span class="menu-text">Causal Inference</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
@@ -134,7 +138,11 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Recommendations as treatments</h1>
-</div>
+  <div class="quarto-categories">
+    <div class="quarto-category">CausalInference</div>
+    <div class="quarto-category">Recommendations</div>
+  </div>
+  </div>
 
 <div>
   <div class="description">
@@ -161,7 +169,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This is the summary of “Recommendations as Treatments” <a href="https://www.google.com/url?sa=t&amp;source=web&amp;rct=j&amp;opi=89978449&amp;url=https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875&amp;ved=2ahUKEwiIrfqMotqGAxXerlYBHcPQD70QFnoECBsQAQ&amp;usg=AOvVaw1LcYU_15mHx4LhSr_GqiDS">(paper</a>) by Joachims et al.</p>
+<p>This is the summary of “Recommendations as Treatments” (<a href="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875">paper</a>) by Joachims et al.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="../../images/2024/06/Screenshot-2024-06-17-at-13.26.47.png" class="img-fluid figure-img"></p>
@@ -223,6 +231,13 @@ ul.task-list li input[type="checkbox"] {
 <p>By weighting each observed interaction with the inverse propensity of the production policy, we are essentially placing more importance on samples with lower probability to be recommended by the production policy and placing lower importance on samples with higher probability.</p>
 <p>As illustrated in the examples above, this helps us to understand if the new policy performs better than the existing policy.</p>
 <p>This summary captures the main idea behind using Causal Inference techniques in the context of recommendation engines. I have left out several interesting gems presented in the original paper (e.g.&nbsp;counterfactual risk minimization, fairness of recommendation engines, etc.), so have a look at the paper if you are interested in learning more :).</p>
+<hr>
+<p><strong>More causal inference notes:</strong></p>
+<ul>
+<li><a href="../causal-inference-cheatsheet/">Causal inference cheatsheet</a></li>
+<li><a href="../causal-inference-assessing-overlap-in-covariate-distributions/">Assessing overlap in covariate distributions</a></li>
+<li><a href="../gemini-deep-research-summary-of-the-state-of-ovb/">Estimating the distribution of omitted variable bias</a></li>
+</ul>
 
 
 

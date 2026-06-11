@@ -6,10 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-02-01">
-<meta name="description" content="Covariance is a dot product of centered variables. The short derivation that connects the statistical and geometric views.">
+<meta name="description" content="My running notes on causal inference, in the order I’d hand them to someone starting out.">
 
-<title>Relationship of covariance and dot product – Applied Data Science &amp; ML</title>
+<title>Causal Inference – Applied Data Science &amp; ML</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -28,24 +27,26 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../">
-<link href="../../favicon.ico" rel="icon">
-<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./favicon.ico" rel="icon">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,6 +74,35 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-ci-posts .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-title','listing-description','listing-date',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-ci-posts'] = new List('listing-ci-posts', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <script defer="" src="https://cloud.umami.is/script.js" data-website-id="09f84a6f-1bc7-4240-8034-d0aa9525c3e6"></script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
@@ -119,8 +149,8 @@ window.Quarto = {
 };
 </script>
 
-<meta property="og:title" content="Relationship of covariance and dot product – Applied Data Science &amp; ML">
-<meta property="og:description" content="Covariance is a dot product of centered variables. The short derivation that connects the statistical and geometric views.">
+<meta property="og:title" content="Causal Inference – Applied Data Science &amp; ML">
+<meta property="og:description" content="My running notes on causal inference, in the order I’d hand them to someone starting out.">
 <meta property="og:site_name" content="Applied Data Science &amp; ML">
 </head>
 
@@ -131,7 +161,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Applied Data Science &amp; ML</span>
     </a>
   </div>
@@ -142,15 +172,15 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../causal-inference.html"> 
+    <a class="nav-link active" href="./causal-inference.html" aria-current="page"> 
 <span class="menu-text">Causal Inference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html"> 
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -169,29 +199,20 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#the-relationship-between-covariance-and-dot-product" id="toc-the-relationship-between-covariance-and-dot-product" class="nav-link active" data-scroll-target="#the-relationship-between-covariance-and-dot-product">The Relationship Between Covariance and Dot Product</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Relationship of covariance and dot product</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">DataScienceBasics</div>
-  </div>
-  </div>
+<h1 class="title">Causal Inference</h1>
+</div>
 
 <div>
   <div class="description">
-    Covariance is a dot product of centered variables. The short derivation that connects the statistical and geometric views.
+    My running notes on causal inference, in the order I’d hand them to someone starting out.
   </div>
 </div>
 
@@ -199,12 +220,6 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">February 1, 2022</p>
-    </div>
-  </div>
   
     
   </div>
@@ -214,44 +229,85 @@ window.Quarto = {
 </header>
 
 
-<section id="the-relationship-between-covariance-and-dot-product" class="level3">
-<h3 class="anchored" data-anchor-id="the-relationship-between-covariance-and-dot-product">The Relationship Between Covariance and Dot Product</h3>
-<p>Covariance and the dot product are related concepts in mathematics and statistics, particularly in the context of vectors and random variables. Here’s how they are connected:</p>
-<section id="dot-product" class="level4">
-<h4 class="anchored" data-anchor-id="dot-product">Dot Product</h4>
-<p>The dot product (also known as the scalar product) of two vectors <span class="math inline">\mathbf{a}</span> and <span class="math inline">\mathbf{b}</span> in <span class="math inline">n</span>-dimensional space is given by:</p>
-<p><span class="math display">
-\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i b_i .
-</span></p>
-<p>This operation results in a single scalar value and provides a measure of the similarity between the two vectors. If the vectors point in the same direction, the dot product is positive and large; if they point in opposite directions, the dot product is negative; if they are orthogonal, the dot product is zero.</p>
-</section>
-<section id="covariance" class="level4">
-<h4 class="anchored" data-anchor-id="covariance">Covariance</h4>
-<p>Covariance is a measure of how much two random variables <span class="math inline">X</span> and <span class="math inline">Y</span> change together. It is given by:</p>
-<p><span class="math display">
-\operatorname{Cov}(X, Y) = \mathbb{E}\!\left[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])\right]
-</span></p>
-<p>Where <span class="math inline">\mathbb{E}</span> denotes the expected value. If the covariance is positive, the variables tend to increase together; if it is negative, one tends to increase when the other decreases.</p>
-</section>
-<section id="relationship" class="level4">
-<h4 class="anchored" data-anchor-id="relationship">Relationship</h4>
-<p>The relationship between covariance and the dot product can be seen in the context of centered random variables. If you consider the centered random variables:</p>
-<p><span class="math display">
-\tilde{X} = X - \mathbb{E}[X], \qquad \tilde{Y} = Y - \mathbb{E}[Y],
-</span></p>
-<p>the covariance between <span class="math inline">X</span> and <span class="math inline">Y</span> can be interpreted as the dot product of these centered variables in the space of random variables, normalized by the number of observations <span class="math inline">n</span>:</p>
-<p><span class="math display">
-\operatorname{Cov}(X, Y) = \frac{1}{n} \sum_{i=1}^{n} \tilde{X}_i \tilde{Y}_i .
-</span></p>
-<p>Here, <span class="math inline">\tilde{X}_i</span> and <span class="math inline">\tilde{Y}_i</span> are the deviations from the mean of the random variables <span class="math inline">X</span> and <span class="math inline">Y</span> respectively. This sum is analogous to the dot product, where the sum of the products of corresponding elements gives a measure of the overall relationship between the two sets of values.</p>
-</section>
-<section id="summary" class="level4">
-<h4 class="anchored" data-anchor-id="summary">Summary</h4>
-<p>In summary, covariance can be viewed as a normalized dot product of centered random variables. Both operations measure how two sets of values relate to each other, with the dot product being a geometric measure in vector space and covariance being a statistical measure in the space of random variables.</p>
+<p>Most of what I write here circles back to one question: when can you actually call something a cause, and not just a correlation that happened to show up in the data?</p>
+<p>These are the posts where I work through that, roughly in the order I’d read them.</p>
+<p>Start with the <a href="posts/causal-inference-cheatsheet/">cheatsheet</a> for the vocabulary and the assumption behind each method. Then <a href="posts/causal-inference-assessing-overlap-in-covariate-distributions/">assessing overlap</a> goes deep on one specific diagnostic, whether your treatment and control groups are even comparable to begin with. From there, <a href="posts/gemini-deep-research-summary-of-the-state-of-ovb/">omitted variable bias</a> asks the uncomfortable follow-up: how much could a confounder you never measured be moving your answer. And <a href="posts/recommendations-as-treatments/">recommendations as treatments</a> is where it gets applied, treating a recommender system as a policy you can study with the same tools.</p>
+<div id="listing-ci-posts" class="quarto-listing quarto-listing-container-default">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDQ2hlYXRzaGVldA==" data-listing-date-sort="1705244400000" data-listing-file-modified-sort="1781158056597" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">Causal Inference cheatsheet</a>
+</h3>
+<div class="delink listing-description"><a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">
+<p>A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure’s Causal Inference for the Brave and True.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">
+<div class="listing-date">
+Jan 15, 2024
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDRGF0YVNjaWVuY2UlMkNEYXRhU2NpZW5jZUJhc2ljcyUyQ2hvd3Rv" data-listing-date-sort="1725116400000" data-listing-file-modified-sort="1781158056598" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1655">
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">Causal Inference: Assessing Overlap in Covariate Distributions</a>
+</h3>
+<div class="delink listing-description"><a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">
+<p>Working through Chapter 14 of Imbens &amp; Rubin: the diagnostics for checking covariate overlap between treatment and control, with the formulas spelled out.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">
+<div class="listing-date">
+Sep 1, 2024
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDTExN" data-listing-date-sort="1743865200000" data-listing-file-modified-sort="1781158056599" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="23" data-listing-word-count-sort="4545">
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">Estimating the Distribution of Omitted Variable Bias in Causal Inference</a>
+</h3>
+<div class="delink listing-description"><a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">
+<p>How large would an unobserved confounder need to be to overturn your causal estimate? A survey of methods for bounding omitted variable bias.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">
+<div class="listing-date">
+Apr 6, 2025
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDUmVjb21tZW5kYXRpb25z" data-listing-date-sort="1718550000000" data-listing-file-modified-sort="1781158056599" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1166">
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/recommendations-as-treatments/index.html" class="no-external">Recommendations as treatments</a>
+</h3>
+<div class="delink listing-description"><a href="./posts/recommendations-as-treatments/index.html" class="no-external">
+<p>Joachims et al.&nbsp;reframe recommender systems as policies you can study with causal tools like inverse propensity weighting. My summary.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/recommendations-as-treatments/index.html" class="no-external">
+<div class="listing-date">
+Jun 17, 2024
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div>
 
 
-</section>
-</section>
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

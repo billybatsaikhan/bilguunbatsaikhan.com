@@ -1,5 +1,14 @@
 [
   {
+    "listing": "/causal-inference.html",
+    "items": [
+      "/posts/causal-inference-cheatsheet/index.html",
+      "/posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html",
+      "/posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html",
+      "/posts/recommendations-as-treatments/index.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
       "/posts/changes-to-my-workflow/index.html",
