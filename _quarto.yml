@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: _site
+  # Copy the custom-domain marker into the build output so `quarto publish`
+  # preserves it on the gh-pages branch (otherwise each publish wipes it).
+  resources:
+    - CNAME
 
 website:
   title: "Applied Data Science & ML"
