@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2021-04-13">
+
+<title>Data engineering: simple and complex data pipelines – Applied Data Science &amp; ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<meta property="og:title" content="Data engineering: simple and complex data pipelines – Applied Data Science &amp; ML">
+<meta property="og:description" content="Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science &amp; ML.">
+<meta property="og:image" content="https://bilguunbatsaikhan.com/images/2021/04/Screen-Shot-2021-04-28-at-12.00.18.png">
+<meta property="og:site_name" content="Applied Data Science &amp; ML">
+<meta property="og:image:height" content="848">
+<meta property="og:image:width" content="1910">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Applied Data Science &amp; ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bilguuniqo"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data engineering: simple and complex data pipelines</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">data-engineering</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 13, 2021</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Most of my previous work consisted of various data analysis and ML-related tasks.</p>
+<p>As of recently, I have been working on tasks related to data engineering, so I have decided to learn more about it. I have stumbled upon Chris Riccomini’s talk @<a href="https://qconsf.com/">QConSanFrancisco</a> and have learned quite a few terminologies and concepts.</p>
+<p>In this blog I would like to summarize the key points from Chris’ talk.<br>
+All credits go to Chris Riccomini (<a href="https://www.youtube.com/watch?v=ZZr9oE4Oa5U">Link to the talk</a>, L<a href="https://www.linkedin.com/in/riccomini/">inkedin</a>, <a href="https://twitter.com/criccomini?s=20">Twitter</a>).</p>
+<hr>
+<p><strong>What is the role of a data engineer?</strong><br>
+- Data engineer’s job is to help an organization <strong>move (streaming or data pipelines)</strong> and <strong>process</strong> (data warehouses (DWH)) data.</p>
+<blockquote class="blockquote">
+<p>Data engineers build tools, infrastructure, frameworks and services.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Data engineering is much closer to software engineering than it is to a data science.</p>
+</blockquote>
+<p>- <a href="https://www.freecodecamp.org/news/the-rise-of-the-data-engineer-91be18f1e603/">“The rise of the data engineer”</a>, Maxime Beauchemin, Preset.</p>
+<hr>
+<p>Data engineers are primarily involved with building data pipelines.</p>
+<p><strong>There are 6 stages in an organization’s data pipeline:</strong><br>
+1. None<br>
+2. Batch<br>
+3. Realtime<br>
+4. Integration<br>
+5. Automation<br>
+6. Decentralization</p>
+<hr>
+<p><strong><u>1. None (Monolith DB)</u></strong></p>
+<p>Structure:<br>
+1. Single large DB<br>
+2. Users access the same DB<br>
+<br>
+<strong>Pros/cons:</strong></p>
+<ol type="1">
+<li><u>Pros:</u><br>
+
+<ul>
+<li>Simple</li>
+</ul></li>
+<li><u>Cons:</u><br>
+
+<ul>
+<li>Queries time out<br>
+</li>
+<li>Users impact each other<br>
+</li>
+<li>MySQL doesn’t have complex SQL functions<br>
+</li>
+<li>Report generation are broken</li>
+</ul></li>
+</ol>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-12.00.18.png" class="img-fluid"></p>
+<hr>
+<p><u><strong>2. Batch (DWH + Scheduler)</strong></u></p>
+<p>Structure:<br>
+1. In-between the user and the DB we put a DWH<br>
+2. To get data from the DB to the DWH, we put a scheduler to periodically suck the data in.</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-12.01.00.png" class="img-fluid"></p>
+<p><strong>Pros/cons:</strong></p>
+<ol type="1">
+<li><u>Pros:</u><br>
+
+<ul>
+<li>setup is quick<br>
+</li>
+<li>best for a basic setup</li>
+</ul></li>
+<li><u>Cons:</u><br>
+
+<ul>
+<li>Large number of Airflow jobs are difficult to maintain<br>
+</li>
+<li>create_time, modify_time issues arise<br>
+</li>
+<li>DB Admin’s operations impact the pipeline<br>
+</li>
+<li>Hard deletes don’t propagate<br>
+</li>
+<li>MySQL replication latency (the amount of time it takes for a transaction that occurs in the primary database to be applied to the replicate database) causes data quality issues<br>
+</li>
+<li>Periodic loads cause occasional MySQL timeouts</li>
+</ul></li>
+</ol>
+<hr>
+<p>Transition to <strong><u>Realtime</u></strong> if:<br>
+1. Loads are taking too long<br>
+2. Pipelines are no longer stable<br>
+3. Many complicated workflows<br>
+4. Data latency (the time it takes for data to travel from one place to another) is becoming issue<br>
+5. Data engineering is your full-time job<br>
+6. Your organization uses Apache Kafka (<strong>stream processing tool</strong> that provides a <strong>unified</strong>, <strong>high-throughput</strong>, <strong>low-latency</strong> platform for handling <strong>real-time</strong> data feeds.)</p>
+<hr>
+<p><strong><u>3. Realtime (Kafka)</u></strong></p>
+<p>Structure:<br>
+1. Change Airflow to Debezium (Tool for change data capture. Start it up, point it at your data sources, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases.)</p>
+<blockquote class="blockquote">
+<p>Change Data Capture is github for DB changes.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Debezium data sources: MongoDB, MySQL, PostgreSQL, SQL Server, Oracle, Cassandra</p>
+</blockquote>
+<p>2. Operational complexity has gone up</p>
+<p>3. KCBQ - Kafka Connects to BigQuery (takes data from Kafka and uploads it into BigQuery)</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-12.19.23.png" class="img-fluid"></p>
+<hr>
+<p>Transition to <strong><u>Integration</u></strong> if:<br>
+1. You have many microservices<br>
+2. You have a diverse DB ecosystem<br>
+3. You have a team of data engineers<br>
+4. You have a mature SRE organization (SRE teams use software as a tool to manage systems, solve problems, and automate operations tasks)</p>
+<hr>
+<p><strong><u>4. Integration (Advanced topic)</u></strong></p>
+<p>Structure:<br>
+1. Services with DB<br>
+2. Streaming platform (Kafka) and DWH<br>
+3. Different types of DBs (NoSQL, NewSQL, GraphDB…)</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-13.27.24.png" class="img-fluid"><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-13.28.41.png" class="img-fluid"></p>
+<hr>
+<p><strong><u>Why do we need such a complex pipeline?</u></strong><br>
+<br>
+<strong><a href="https://en.wikipedia.org/wiki/Metcalfe%27s_law#:~:text=Metcalfe's%20law%20states%20that%20the,the%20system%20(n2).&amp;text=Only%20later%20with%20the%20globalization,was%20to%20describe%20Ethernet%20connections.">Metcalfe’s law</a></strong> states that the value of a telecommunications network is proportional to the square of the number of connected users of the system (the value of a network increases with more nodes and edges you add into it).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/04/metcalfe.png" class="img-fluid figure-img"></p>
+<figcaption>Twotelephonescan make only oneconnection, five can make 10 connections, and twelve can make 66 connections.</figcaption>
+</figure>
+</div>
+<p><strong>Pros/cons:</strong></p>
+<ol type="1">
+<li><u>Pros:</u><br>
+
+<ul>
+<li>If you would like to test a new realtime system, it becomes relatively easy to do so. –&gt; Because your data is very portable.<br>
+</li>
+<li>Easy to switch Cloud vendors<br>
+</li>
+<li>Improves infrastructure agility. Easy to plug-in a new system, feed with data and test it.</li>
+</ul></li>
+<li><u>Cons:</u><br>
+
+<ul>
+<li>Add/create/configure/grant/deploy manual work persists!<br>
+</li>
+<li>Manual work eats up time…</li>
+</ul></li>
+</ol>
+<hr>
+<p>Transition to <strong><u>Automation</u></strong> if:<br>
+1. Your SREs can’t keep up<br>
+2. Manual work is taking a lot of time</p>
+<hr>
+<p><strong><u>5. Automation</u></strong></p>
+<p>Structure:<br>
+1. Automated Data Management added<br>
+2. Automated Operations added</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-14.08.43.png" class="img-fluid"></p>
+<hr>
+<p><strong>a) Automated Data Management</strong></p>
+<p>Automation helps with data management:<br>
+1. Who gets access to the data once it is loaded ?<br>
+2. How long can the data exist (persist only 3 years –&gt; removed)?<br>
+3. Is this data allowed in this system (sensitive information)?<br>
+4. Which geographies must the data persist in?<br>
+5. Should columns be masked, redacted?</p>
+<p>One of the most redundant tasks of data management is creating d<a href="https://wiki.gccollab.ca/index.php?title=Data_Catalog&amp;mobileaction=toggle_view_desktop">ata catalogs</a>.</p>
+<p><strong>Contents of a data catalog:</strong><br>
+- Location of the data<br>
+- Data schema information<br>
+- Who owns the data<br>
+- Lineage (where the data came from)<br>
+- Encryption information (which parts of the data are masked, encrypted)<br>
+- Versioning information</p>
+<p>Example data catalog by <a href="https://www.amundsen.io/">Lyft’s Amundsen</a> tool:</p>
+<p><img src="../../images/2021/04/amundsen.png" class="img-fluid"></p>
+<p>The key point here is that we don’t want to manually input data into the data catalog.</p>
+<p>Instead, we should be hooking up our systems to different data catalog generators since they can automatically generate the metadata (schema, ownership, evolution, etc.).</p>
+<hr>
+<p><strong>b) Automated Operations:</strong></p>
+<p>User management automations:<br>
+1. New user access<br>
+2. New data access<br>
+3. Service account access<br>
+4. Temporary access<br>
+5. Unused access</p>
+<p>Detecting violations via automations:<br>
+1. Auditing<br>
+2. Data loss prevention (GCP Data Loss Prevention (DLP))</p>
+<p>For example, we can run DLP checks to detect whether sensitive information (phone number, SSN, email, etc.) exists in the data or not. This protects us from violating regulations.</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-14.58.35.png" class="img-fluid"></p>
+<p><u>Even after automating all of the above, data engineers still have to configure and deploy.</u></p>
+<hr>
+<p>Transition to <strong><u>Decentralization</u></strong> if:<br>
+1. You have a fully automated realtime data pipeline<br>
+2. People still ask the data engineers to load some data</p>
+<hr>
+<p><strong><u>6. Decentralization</u></strong></p>
+<p>Structure:<br>
+1. Multiple DWHs<br>
+2. Different groups administer and manage their own DWH<br>
+3. From monolith to <strong>micro-warehouses</strong></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-15.08.36.png" class="img-fluid figure-img"></p>
+<figcaption>-</figcaption>
+</figure>
+</div>
+<hr>
+<p><strong>What is likely to be considered a full data pipeline Decentralization?</strong><br>
+1. Polished tools are exposed to everyone<br>
+2. Security and compliance manage the access and policies<br>
+3. Data engineers manage data tools and infrastructure<br>
+4. Everyone manages data pipelines and DWHs</p>
+<hr>
+<p><strong><u>Conclusion:</u></strong></p>
+<p>Modern Data Pipeline structures by Chris Riccomini:<br>
+1. Realtime data integration<br>
+2. Streaming platforms<br>
+3. Automated data management<br>
+4. Automated operations<br>
+5. Decentralized DWHs and pipelines</p>
+<p><img src="../../images/2021/04/Screen-Shot-2021-04-28-at-15.16.55.png" class="img-fluid"></p>
+<hr>
+<p>As a final remark, I would like to say that I truly enjoyed Chris’ speech.</p>
+<p>It made me truly appreciate all the hard work put by data engineers, not mentioning the complexity of bits and pieces.</p>
+<p>For anyone who is reading this post, I highly recommend to go and watch Chris’ talk.</p>
+<p>Cheers and stay safe!</p>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/bilguunbatsaikhan\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

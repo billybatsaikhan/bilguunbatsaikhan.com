@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2024-09-01">
+
+<title>Causal Inference: Assessing Overlap in Covariate Distributions – Applied Data Science &amp; ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Causal Inference: Assessing Overlap in Covariate Distributions – Applied Data Science &amp; ML">
+<meta property="og:description" content="Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science &amp; ML.">
+<meta property="og:image" content="https://bilguunbatsaikhan.com/images/2024/09/overlap-embedded-01.png">
+<meta property="og:site_name" content="Applied Data Science &amp; ML">
+<meta property="og:image:height" content="1726">
+<meta property="og:image:width" content="3246">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Applied Data Science &amp; ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bilguuniqo"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#why-do-we-need-to-adjust-for-differences-in-the-covariate-distributions" id="toc-why-do-we-need-to-adjust-for-differences-in-the-covariate-distributions" class="nav-link active" data-scroll-target="#why-do-we-need-to-adjust-for-differences-in-the-covariate-distributions">1. Why do we need to adjust for differences in the covariate distributions?</a></li>
+  <li><a href="#assessing-overlap-of-univariate-distributions" id="toc-assessing-overlap-of-univariate-distributions" class="nav-link" data-scroll-target="#assessing-overlap-of-univariate-distributions">2. Assessing overlap of univariate distributions</a></li>
+  <li><a href="#assessing-overlap-of-multivariate-distributions" id="toc-assessing-overlap-of-multivariate-distributions" class="nav-link" data-scroll-target="#assessing-overlap-of-multivariate-distributions">3. Assessing overlap of multivariate distributions</a></li>
+  <li><a href="#estimating-if-tc-units-have-comparable-twins-in-ct" id="toc-estimating-if-tc-units-have-comparable-twins-in-ct" class="nav-link" data-scroll-target="#estimating-if-tc-units-have-comparable-twins-in-ct">4. Estimating if T/C units have comparable twins in C/T</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Causal Inference: Assessing Overlap in Covariate Distributions</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">CausalInference</div>
+    <div class="quarto-category">DataScience</div>
+    <div class="quarto-category">DataScienceBasics</div>
+    <div class="quarto-category">howto</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 1, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>This one summarizes what I’ve captured from Chapter 14 of “Causal Inference for Statistics, Social, and Biomedical Sciences: An Introduction” book by Guido W. Imbens and Donald B. Rubin.</em></p>
+<p>Few shortcuts I’ve used:</p>
+<ul>
+<li>T - shortcut for treatment group</li>
+<li>C - shortcut for control group</li>
+</ul>
+<p>Covered sections and their summary:</p>
+<ul>
+<li>14.1 Introduces why adjusting for differences in the covariate distributions is needed</li>
+<li>14.2 Goes over a case with two univariate distributions</li>
+<li>14.3 Goes over a case with two multivariate distributions</li>
+<li>14.4 Explains the role of propensity of scores in assessing the overlap of covariate distributions</li>
+<li>14.5 Provides a measure to assess if each treatment/control unit has an identical non-treated/treated twin</li>
+<li>14.6 Provides examples (skipped)</li>
+</ul>
+<hr>
+<section id="why-do-we-need-to-adjust-for-differences-in-the-covariate-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="why-do-we-need-to-adjust-for-differences-in-the-covariate-distributions">1. Why do we need to adjust for differences in the covariate distributions?</h3>
+<p>If there is a region in the covariate space where T has relatively few units/samples or C has relatively few units/samples, our inferences in that region will largely depend on extrapolation, thus will be less credible compared to inferences of regions where both T and C have substantial overlap in the covariates distribution.<br>
+<br>
+Example:<br>
+<em>Covariate space #1:</em></p>
+<ul>
+<li>T has 5 males with age&lt;=18</li>
+<li>C has 55 males with age&lt;=18.</li>
+</ul>
+<p><em>Covariate space #2:</em></p>
+<ul>
+<li>T has 55 males age&gt;18 and age&lt;=30</li>
+<li>C has 60 males age&gt;18 and age&lt;=30</li>
+</ul>
+<p>In the above example, our inferences for the covariate space #2 will be more credible than our inferences for the covariate space #1.<br>
+<br>
+To note, even in cases when there is there is no confounding (unconfoundedness), this is still a fundamental issue. However, if we have a completely randomized experiment, we can expect the distribution of covariates to be similar per definition, and thus, less risks of stumbling upon this issue.</p>
+<hr>
+</section>
+<section id="assessing-overlap-of-univariate-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="assessing-overlap-of-univariate-distributions">2. Assessing overlap of univariate distributions</h3>
+<p><strong><em>1. Comparing differences in location of two distributions</em></strong><br>
+<br>
+Given two univariate probability distributions <span class="math inline">f_c(x)</span> and <span class="math inline">f_t(x)</span> with means <span class="math inline">\mu_c</span> and <span class="math inline">\mu_t</span>, and variances <span class="math inline">\sigma_c^2</span> and <span class="math inline">\sigma_t^2</span>, we can estimate the differences in locations of the two distributions with:</p>
+<p><span class="math display">
+\Delta(ct) = (\mu_t - \mu_c) \big/ \sqrt{(\sigma_t^2 + \sigma_c^2)/2}
+</span></p>
+<p>, which is a normalized measure of difference of two distributions. To note, this is different from the t-statistic that tests whether the data contain sufficient info to support the hypothesis that two covariate means in T and C are different:</p>
+<p><span class="math display">
+T(ct) = (\mu_t - \mu_c) \big/ \left( \sqrt{\sigma_c^2/N_c + \sigma_t^2/N_t} \right)
+</span></p>
+<p>To our purposes, we don’t care about testing if we have <u>enough data to check if means are different</u> between T&amp;C. Instead, we care about understanding if the differences between the distributions are so large that we need to fix the issue, and at the same time, check what kind of adjustment methods are required for the problem at hand.<br>
+<br>
+<strong><em>2. Comparing measures of dispersion of two distributions</em></strong><br>
+<br>
+The log difference in the standard deviations helps to understand the difference in dispersion:</p>
+<p><span class="math display">
+\Gamma(ct) = \ln(\sigma_t/\sigma_c) = \ln(\sigma_t) - \ln(\sigma_c)
+</span></p>
+<p>, we take the log because its more normally distributed compared to simple difference or ratio of standard deviations.<br>
+<br>
+<strong><em>3. Comparing the tail overlaps of two distributions</em></strong><br>
+<br>
+To understand the overlap of covariate distributions in the tail regions, we can calculate the fraction of treatment units that exist in the tails of the distribution of covariate values in the control.<br>
+<br>
+One method is to choose an arbitrary tail boundary, e.g.&nbsp;<span class="math inline">\alpha = 0.05</span> and calculate the probability mass of T’s covariate distribution outside the <span class="math inline">\alpha/2</span> and <span class="math inline">1 - \alpha/2</span> quantiles of the C’s covariate distribution:</p>
+<p><span class="math display">
+\pi_t^{\alpha} = F_t\!\big(F_c^{-1}(\alpha/2)\big) + \Big(1 - F_t\!\big(F_c^{-1}(1 - \alpha/2)\big)\Big)
+</span></p>
+<p>, where <span class="math inline">F_t</span> and <span class="math inline">F_c</span> represent the CDFs of the T and C covariates’ distributions (so <span class="math inline">F_c^{-1}</span> is the quantile function of the control distribution). We can do the same for C, where we calculate the probability mass of C’s covariate distribution outside the <span class="math inline">\alpha/2</span> and <span class="math inline">1 - \alpha/2</span> quantiles of the T’s covariate distribution:</p>
+<p><span class="math display">
+\pi_c^{\alpha} = F_c\!\big(F_t^{-1}(\alpha/2)\big) + \Big(1 - F_c\!\big(F_t^{-1}(1 - \alpha/2)\big)\Big)
+</span></p>
+<p>The intuition here is that it is relatively easy to impute outcomes values of either T or C units in the dense regions of the distribution (e.g.&nbsp;near the mean of a normal distribution where majority of samples are concentrated), while it is harder at the tail regions where only few units exist. One can refer to the following two distributions as an example of two differently dispersed covariates’ distributions:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2024/09/overlap-embedded-01.png" class="img-fluid figure-img"></p>
+<figcaption>Screenshot 2024-09-03 at 17.35.21.png</figcaption>
+</figure>
+</div>
+<p>Last but not least, here’s how to interpret the values:</p>
+<ul>
+<li><span class="math inline">\pi_c^{\alpha} = \pi_t^{\alpha} = \alpha</span> happens for a completely randomized experiment, where only <span class="math inline">\alpha \times 100\%</span> of units have covariate values that make us cry (i.e.&nbsp;difficult to impute the missing potential outcomes of a group).</li>
+<li>if <span class="math inline">\pi_t^{\alpha} &gt; \alpha</span>, it will be relatively difficult to impute/predict the missing potential outcomes for the <strong>control</strong> units (more treatment units exist in the tail region of the control group’s covariate distribution).</li>
+<li>if <span class="math inline">\pi_c^{\alpha} &gt; \alpha</span>, it will be relatively difficult to impute/predict the missing potential outcomes for the <strong>treatment</strong> units (more control units exist in the tail region of the treatment group’s covariate distribution).</li>
+</ul>
+<hr>
+</section>
+<section id="assessing-overlap-of-multivariate-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="assessing-overlap-of-multivariate-distributions">3. Assessing overlap of multivariate distributions</h3>
+<p>Given K covariates, we could compare the distributions of T &amp; C iteratively one-by-one using the above approach. A good way is to start with the covariates for which you have a priori belief that it is highly associated with the outcome (i.e.&nbsp;ensuring the importatnt covariates are okay).</p>
+<section id="using-mahalanobis-distance-to-compare-differences-of-multivariate-distributions" class="level4">
+<h4 class="anchored" data-anchor-id="using-mahalanobis-distance-to-compare-differences-of-multivariate-distributions"><em>Using Mahalanobis distance to c<strong>ompare differences of multivariate distributions</strong></em></h4>
+<p>In addition to above metrics that can be used for univariate distributions, there is a neat multivariate summary measure that captures the difference in locations between two distributions similar to the one mentioned in the first part of section 2. It leverages the Mahalanobis distance and takes as input the 2 by K-dimensional vector of distribution means of each covariate <span class="math inline">\mu_c</span> and <span class="math inline">\mu_t</span>:</p>
+<p><span class="math display">
+\Delta_{ct}^{\text{multi}} = \sqrt{(\mu_t - \mu_c)^{\top} \, \big((\Sigma_c + \Sigma_t)/2\big)^{-1} \, (\mu_t - \mu_c)}
+</span></p>
+<p>, where</p>
+<p><span class="math display">
+\Sigma_c = \frac{1}{N_c - 1} \sum_{i:W_i=0} (X_i - \bar{\mu}_c)(X_i - \bar{\mu}_c)^{\top}
+\quad\text{and}\quad
+\Sigma_t = \frac{1}{N_t - 1} \sum_{i:W_i=1} (X_i - \bar{\mu}_t)(X_i - \bar{\mu}_t)^{\top}
+</span></p>
+<p>are the covariance matrices of distribution means for C &amp; T, respectively. Intuitively, a larger Mahalanobis distance tells us that the distributions are further apart in multivariate space, considering both location and spread.</p>
+</section>
+<section id="using-propensity-scores-to-compare-distributions" class="level4">
+<h4 class="anchored" data-anchor-id="using-propensity-scores-to-compare-distributions"><em>Using propensity scores to c</em><strong><em>ompare distributions</em></strong></h4>
+<p>We can use propensity scores to assess the balance of covariate distributions is that any difference in covariate distributions also shows up in the difference of propensity score distributions. In principle, &nbsp;difference in covariate distributions leads to difference in the expected propensity scores of T&amp;C, i.e.&nbsp;the average propensity scores. So if there’s a non-zero difference in the propensity score distributions for T&amp;C, it also implies there is a difference in the covariate distributions for T&amp;C.<br>
+<br>
+Since it is much less work to analyze the differences of univariate distributions compared to multivariate ones, leveraging propensity scores and their distributions which is a univariate distribution to analyze the differences makes things a bit simpler.<br>
+<br>
+How does it work? Consider t(x) to be the true propensity score (assuming we know the treatment assignment mechanism) and l(x) to be the linearized propensity score (log odds ratio) of being in T vs C given covariates x:</p>
+<p><span class="math display">
+l(x) = \ln\!\left(\frac{t(x)}{1 - t(x)}\right)
+</span></p>
+<p>Then, we can simply look at the normalized difference in means for the propensity scores of each treatment, where:</p>
+<p><span class="math display">
+\bar{l}_c = \frac{1}{N_c} \sum_{i:W_i=0} l(X_i)
+\quad\text{and}\quad
+\bar{l}_t = \frac{1}{N_t} \sum_{i:W_i=1} l(X_i)
+</span></p>
+<p>are the average values for propensity scores of C &amp; T units, and:</p>
+<p><span class="math display">
+s_{l,c}^2 = \frac{1}{N_c - 1} \sum_{i:W_i=0} \big(l(X_i) - \bar{l}_c\big)^2
+\quad\text{and}\quad
+s_{l,t}^2 = \frac{1}{N_t - 1} \sum_{i:W_i=1} \big(l(X_i) - \bar{l}_t\big)^2
+</span></p>
+<p>are the variances of the propensity score, which leads us to the estimated difference in average propensity scores scaled by the square root of the average square within-treatment-group standard deviations:</p>
+<p><span class="math display">
+\hat{\Delta}_{ct}^{l} = (\bar{l}_t - \bar{l}_c) \big/ \sqrt{(s_{l,c}^2 + s_{l,t}^2)/2}
+</span></p>
+<p>To note, if we are using linearized propensity scores, the propensity score function is scale-invariant, so there is not actually a need to normalize the above by the standard deviations.<br>
+<br>
+Moreover, compared to how we assessed the univariate covariate distributions, there are some points to be aware of:</p>
+<ol type="1">
+<li>Differences in the covariate distributions are implied by the variation in the propensity scores.</li>
+<li>If the treatment assignment mechanism is biased some way then it is possible that the covariate distributions are similar, but we observe a difference in the propensity score distributions.</li>
+<li>On another hand, the treatment assignment mechanism might not be biased, and the covariate distributions do indeed differ (implied by the difference in propensity score distributions).</li>
+<li>If the covariate distributions of two treatments differ, then it must be that the expected value of the propensity score in T is larger than the expected value of the propensity score in the C (or vice-versa).</li>
+</ol>
+<p>As a result, we can understand that differences in covariate distributions in T vs C <u>imply, and are implied by</u>, the differences in the average value of the propensity scores of T &amp; C. Proof is captured in the book Chapter 14.4.</p>
+<hr>
+</section>
+</section>
+<section id="estimating-if-tc-units-have-comparable-twins-in-ct" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-if-tc-units-have-comparable-twins-in-ct">4. Estimating if T/C units have comparable twins in C/T</h3>
+<p>Consider a unit <span class="math inline">i</span> with treatment <span class="math inline">W_i</span>. For this unit <span class="math inline">i</span> we can determine if there is a comparable twin with treatment <span class="math inline">\hat{W}_i = 1 - W_i</span> such that the difference in propensity scores <span class="math inline">l(X_i) - l(\bar{X}_i)</span> is less than or equal to <span class="math inline">l_u</span>, where <span class="math inline">l_u</span> is an upper threshold implying the difference in propensity scores is less than 10%.<br>
+<br>
+Intuitively, if there is a similar unit with opposite treatment and a similar propensity score, we may be able to obtain trustworthy estimates of causal effects without any extrapolation or additional work. However, if there are many such units without twins, it will be difficult to obtain credible estimates of causal effects, no matter what methods we use. A common method to solve this, given we have enough samples, is to trim the units without twins.<br>
+<br>
+We can estimate the degree of units with close comparison units by defining an indicator variable <span class="math inline">\varsigma_i</span> that flags whether unit <span class="math inline">i</span> has a comparable twin:</p>
+<p><span class="math display">
+\varsigma_i =
+\begin{cases}
+1 &amp; \text{if a comparable twin exists for unit } i,\\
+0 &amp; \text{otherwise.}
+\end{cases}
+</span></p>
+<p>, then for each T &amp; C we can define two overlap measures implying the proportion of units with close comparisons:</p>
+<p><span class="math display">
+q_c = \frac{1}{N_c} \sum_{i:W_i=0} \varsigma_i
+\quad\text{and}\quad
+q_t = \frac{1}{N_t} \sum_{i:W_i=1} \varsigma_i
+</span></p>
+<hr>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/bilguunbatsaikhan\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

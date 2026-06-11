@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-04-06">
+
+<title>Estimating the Distribution of Omitted Variable Bias in Causal Inference – Applied Data Science &amp; ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<meta property="og:title" content="Estimating the Distribution of Omitted Variable Bias in Causal Inference – Applied Data Science &amp; ML">
+<meta property="og:description" content="Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science &amp; ML.">
+<meta property="og:site_name" content="Applied Data Science &amp; ML">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Applied Data Science &amp; ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bilguuniqo"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Estimating the Distribution of Omitted Variable Bias in Causal Inference</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">CausalInference</div>
+    <div class="quarto-category">LLM</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 6, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Hi folks, while digging into the state of OVB (Omitted Variable Bias) distribution estimation, I’ve asked for help from Gemini (Deep Research) and enjoyed what it summarized for me.</p>
+<p><em>Disclaimer: Below is generated by Gemini (errors may exist; but I don’t care and I like this deep dive).</em></p>
+<p><strong>Introduction: The Pervasive Challenge of Omitted Variable Bias in Causal Inference.</strong></p>
+<p>Omitted variable bias (OVB) stands as a significant impediment to the accurate estimation of causal effects in statistical modeling.1 This bias arises when a statistical model fails to incorporate one or more relevant variables that are correlated with both the independent variable(s) of interest and the dependent variable.3 In essence, the absence of these crucial factors leads the model to misattribute the influence of the missing variable to the variables that are included in the analysis.3 Consequently, the estimated coefficients of the included variables become unreliable, potentially overestimating or underestimating the true causal effects.3 The validity of research findings is thus compromised when important variables are excluded from the model.3</p>
+<p>The fundamental issue at the heart of OVB is the entanglement of the omitted variable’s impact with the estimated effects of the included variables.3 When a variable that influences the outcome is also correlated with an independent variable in the model, the model mistakenly attributes the changes in the outcome driven by the omitted variable to the included one. For instance, in examining the effect of education on salary, if an individual’s ability is not accounted for (perhaps due to measurement challenges), and if ability is correlated with both education level and earning potential, then the estimated effect of education on salary might be inflated by the influence of ability.3 This highlights how the model can mistakenly attribute the effect of the missing variable to the included variables. The pervasive nature of OVB stems from the practical difficulties in identifying and measuring all potential confounding factors in real-world scenarios, particularly within the social and behavioral sciences where numerous interconnected elements can affect outcomes.6</p>
+<p>Omitted variable bias arises under specific conditions. Firstly, the excluded variable must have a genuine impact on the dependent variable.3 Secondly, this omitted variable must exhibit a correlation with at least one of the independent variables included in the model.3 The direction of this bias, whether it leads to an overestimation or underestimation of the causal effect, is contingent upon the signs of these correlations.4 A positive correlation between the omitted variable and both the included variable and the outcome typically results in an upward bias. Conversely, differing signs in these correlations can lead to a downward bias.4 The presence of OVB also violates a core assumption of Ordinary Least Squares (OLS) regression, which posits that the error term should be uncorrelated with the regressors.4 When OVB is present, the omitted variable’s effect becomes part of the error term, which is then correlated with the included regressors, leading to biased and inconsistent OLS estimators.4</p>
+<p>Given that the precise magnitude and even the direction of OVB are often unknown in practical research, estimating the potential distribution of this bias becomes paramount.3 Understanding this distribution allows for a more nuanced appreciation of the uncertainty surrounding causal estimates.3 This deeper understanding is essential for drawing more reliable conclusions from empirical investigations and for making informed decisions based on the estimated causal effects.5 A singular point estimate of bias offers limited insight into the range of plausible true effects. By estimating the distribution, researchers can quantify the inherent uncertainty and assess the robustness of their findings across various potential scenarios of omitted confounding. This distribution enables the construction of confidence intervals that more accurately reflect the uncertainty introduced by the possibility of omitted variable bias.</p>
+<hr>
+<p><strong>Analytical Frameworks for Understanding Omitted Variable Bias.</strong></p>
+<p>The mathematical formulation of omitted variable bias in linear regression models provides a foundational understanding of this issue. In a scenario where a simple linear regression of an outcome variable (<em>y</em>) on an independent variable (<em>x</em>) is conducted, and a relevant variable (<em>z</em>) is omitted from the model, the estimated coefficient associated with (<em>x</em>) will be biased.4 This bias can be expressed mathematically as a function of the correlation between (<em>x</em>) and (<em>z</em>), and the effect that (<em>z</em>) has on (<em>y</em>).4 Specifically, if the true underlying relationship is represented by the model <em>y</em> = <em>b</em>x + <em>c</em>z + <em>u</em> (where <em>u</em> is the error term), but the estimated model omits <em>z</em>, taking the form <em>y</em> = <em>a</em>x + <em>v</em> (where <em>v</em> is the error term in the misspecified model), then the expected value of the estimated coefficient <em>a</em> is E[<em>a</em>] = <em>b</em> + <em>c</em>f.&nbsp;Here, <em>f</em> represents the coefficient obtained from a regression of the omitted variable <em>z</em> on the included variable <em>x</em>.4</p>
+<p>This mathematical expression for the bias, <em>cf</em>, clearly illustrates that omitted variable bias will only be present when two conditions are met.4 First, <em>c</em>, which represents the true effect of the omitted variable <em>z</em> on the dependent variable <em>y</em>, must be non-zero. If <em>z</em> has no impact on <em>y</em>, then its omission will not bias the estimated effect of <em>x</em>. Second, <em>f</em>, which captures the correlation between <em>x</em> and <em>z</em> (as indicated by the coefficient in the regression of <em>z</em> on <em>x</em>), must also be non-zero. If <em>x</em> and <em>z</em> are uncorrelated, then the variation in <em>x</em> does not systematically coincide with the variation in <em>z</em>, and consequently, the effect of <em>z</em> will not be wrongly attributed to <em>x</em>.</p>
+<p>The magnitude and direction of the correlations between the omitted variable, the included variables, and the outcome are critical determinants of the extent and nature of the bias.4 A positive correlation between the omitted variable and both the included variable and the outcome will lead to an upward bias, resulting in an overestimation of the included variable’s effect.4 Conversely, if the signs of these correlations differ (e.g., a positive correlation between the omitted variable and the included variable, but a negative correlation between the omitted variable and the outcome, or vice versa), the resulting bias will be downward, leading to an underestimation of the included variable’s effect.4 Understanding the hypothesized relationships between a potential omitted variable and the other variables in the model allows researchers to predict the likely direction of the bias, even in the absence of precise knowledge about its magnitude.3 This process is often referred to as “signing the bias,” where researchers use logical reasoning to determine whether the effect of an included variable is likely to be overestimated or underestimated due to the omission of a specific confounder.3</p>
+<p>While analytical formulas provide a way to quantify the bias in linear models, their practical application in estimating the distribution of OVB is often limited.4 These formulas typically require knowledge of the true relationships involving the omitted variable, which, by definition, is unobserved. However, researchers can leverage logical reasoning, domain expertise, and insights from prior research to make informed assumptions about the signs and potential magnitudes of the correlations involving the omitted variable.3 This allows for a qualitative assessment of the potential bias. Although exact analytical estimation of the OVB distribution is often not feasible, these analytical frameworks are crucial for establishing a solid theoretical understanding of the problem. They lay the groundwork for the development and application of more advanced methods, such as sensitivity analysis and bounding approaches, which aim to address the challenges posed by unobserved confounding.</p>
+<hr>
+<p><strong>Sensitivity Analysis: Assessing the Distribution of Causal Effects Under Potential OVB.</strong></p>
+<p>Sensitivity analysis offers a suite of techniques specifically designed to evaluate the robustness of causal inferences in the face of potential omitted variable bias.1 These methods aim to assess how different assumptions about the characteristics and relationships of unobserved confounders might influence the estimated causal effect. Rather than assuming the absence of such confounders, sensitivity analysis explores a range of plausible scenarios regarding their existence and impact, thereby providing a more nuanced understanding of the uncertainty surrounding causal estimates.1 Often, these techniques involve parameterizing the potential confounder based on its hypothesized associations with both the treatment variable and the outcome variable.15</p>
+<p>One key aspect of sensitivity analysis involves quantifying the strength of confounding that would be necessary to alter the conclusions of a study. Measures such as the “robustness value” (RV) serve this purpose.12 The robustness value describes the minimum strength of association, often measured using partial R², that an unobserved confounder would need to exhibit with both the treatment and the outcome to change the substantive findings of the research.12 Similarly, the partial R² of the treatment with the outcome, conditional on any observed covariates, provides insight into how strongly a confounder that explains all the remaining variation in the outcome would need to be associated with the treatment to completely eliminate the estimated effect.12 These measures offer intuitive benchmarks for evaluating the plausibility of omitted variable bias. By quantifying the required “strength” of an unobserved confounder to overturn the results, researchers can leverage their domain-specific knowledge to assess whether such a strong confounder is likely to exist in their particular context. If only a very weak and implausible confounder is sufficient to change the conclusions, the initial findings are considered fragile. Conversely, if a very strong and unlikely confounder would be needed to alter the results, the findings are deemed more robust.</p>
+<p>Graphical tools also play a significant role in sensitivity analysis, facilitating the visualization of how point estimates and confidence intervals might be affected by potential omitted variable bias.15 Sensitivity contour plots, for example, can illustrate how the estimated causal effect (whether represented as a point estimate, a t-value, or a confidence interval) varies across different combinations of partial R² values between the potential confounder and the treatment, and between the confounder and the outcome.15 These plots allow researchers to readily observe the regions where the estimated effect remains statistically significant and the regions where it might become insignificant under different confounding scenarios, providing a visual assessment of the robustness of their findings. Additionally, “extreme-scenario” sensitivity plots can be employed to explore the potential impact of hypothetical confounders that explain a substantial portion of the variance in the outcome that is not already accounted for by the included variables.15 These visual aids enhance the understanding and communication of the sensitivity of research results to the potential presence of omitted variable bias, allowing researchers to effectively convey the range of plausible effects under various confounding conditions.</p>
+<hr>
+<p><strong>Bounding Approaches: Defining Plausible Ranges for Causal Effects Considering OVB.</strong></p>
+<p>Bounding approaches represent a class of methods that aim to define a plausible range or distribution for the true causal effect by explicitly considering the potential influence of unobserved confounders.1 Unlike sensitivity analysis, which explores a variety of scenarios, bounding techniques seek to establish upper and lower limits within which the true causal effect is likely to lie, given certain assumptions about the nature and magnitude of the unobserved confounding.1 These methods often rely on making assumptions about the maximum possible explanatory power that the omitted variables could have on both the treatment and the outcome.1</p>
+<p>One common strategy within bounding approaches involves utilizing plausibility judgments regarding the maximum explanatory power of omitted variables to directly bound the potential bias.1 Researchers can leverage their subject-matter expertise and insights from previous research to make informed judgments about the maximum proportion of variance in the outcome and/or the treatment that could realistically be explained by any unobserved confounder.1 These plausibility judgments then serve as the basis for deriving bounds on the magnitude of the omitted variable bias. Consequently, these bounds on the bias can be used to establish a range of plausible values for the true causal effect.1 The credibility of these bounds is intrinsically linked to the validity and justification of the initial plausibility judgments. Researchers must carefully articulate the rationale behind their assumptions, drawing upon existing theoretical frameworks and empirical evidence to support the chosen limits on the explanatory power of potential unobserved confounders. If the assumed maximum explanatory power is set too low, the resulting bounds might be overly narrow and exclude the true effect. Conversely, if the assumed power is too high, the bounds might become so wide that they offer little practical information.</p>
+<p>Covariate benchmarking serves as a valuable tool to inform the assumptions made in bounding approaches.8 This technique involves using the observed relationships between the covariates included in the model and the treatment and outcome variables to make inferences about the potential strength of any unobserved confounder.8 By comparing the explanatory power of the observed covariates with what is deemed plausible for an unobserved confounder, researchers can develop more data-driven and justifiable bounds on the potential bias.8 For example, a researcher might argue that an unobserved confounder is unlikely to have a stronger relationship with the treatment or the outcome than the strongest observed covariate in the dataset. This comparison provides an empirical anchor for the plausibility judgments, moving beyond purely subjective assessments. Covariate benchmarking can involve comparing the partial R² of the observed covariates with the treatment and outcome to establish a reasonable upper limit for the potential partial R² of an unobserved confounder. This approach allows for a more informed and defensible range of plausible causal effects, accounting for the potential influence of unobserved variables in a way that is grounded in the observed data.</p>
+<hr>
+<p><strong>Simulation-Based Methods: Estimating the Distribution of OVB Through Simulated Scenarios.</strong></p>
+<p>Simulation-based methods, particularly Monte Carlo simulations, offer a powerful approach to understanding and estimating the distribution of omitted variable bias.5 These methods involve the creation of artificial datasets where the true underlying causal relationships, including the influence of a specific omitted variable, are precisely known by the researcher.5 By repeatedly generating data under various pre-specified scenarios for the omitted variable and then estimating the causal effect of interest while deliberately omitting this variable from the statistical model, researchers can empirically assess the resulting distribution of bias.21</p>
+<p>Simulations provide a controlled environment to investigate the behavior of estimators in the presence of OVB under different conditions. Researchers can systematically vary parameters such as the strength of the relationship between the omitted variable and the included variables, the magnitude of the omitted variable’s effect on the outcome, the sample size of the simulated data, and the correlation structure among the variables.21 By observing how these variations affect the distribution of the estimated causal effect (specifically, the bias), researchers can gain valuable insights into when OVB is likely to be most severe and how it might distort the results of their analyses. For instance, simulations can demonstrate that the magnitude of OVB tends to increase with stronger correlations between the omitted and included variables, and with a larger effect of the omitted variable on the outcome.21 Furthermore, simulation studies can be designed to evaluate the effectiveness of different strategies aimed at mitigating OVB, such as the use of proxy variables or instrumental variables, under various simulated conditions.20 This allows for a comparative assessment of the performance of different methodological approaches in the presence of unobserved confounding.</p>
+<p>Beyond understanding the conditions that exacerbate OVB, simulation-based methods play a crucial role in validating other analytical and sensitivity analysis techniques.7 The empirical distribution of bias obtained from a well-designed simulation study can be compared with the theoretical predictions derived from analytical formulas for OVB. Similarly, simulation results can be used to assess the coverage properties of confidence intervals generated by sensitivity analysis methods. If a simulation study consistently shows that the observed bias falls within the bounds predicted by a particular sensitivity analysis technique, it provides empirical support for the reliability and validity of that technique in real-world applications where the true bias is unknown. This process of validation through simulation helps to build confidence in the accuracy and robustness of the different methods used to address the challenges posed by omitted variable bias in causal inference.</p>
+<hr>
+<p><strong>Bayesian Methods: Incorporating Uncertainty from Unobserved Confounding into Causal Inference.</strong></p>
+<p>Bayesian methods offer a natural framework for incorporating the uncertainty arising from unobserved confounding directly into the estimation of causal effects.25 A key feature of the Bayesian approach is the explicit modeling of uncertainty through the use of prior distributions.25 In the context of omitted variable bias, prior distributions can be specified for the parameters of the unobserved confounder itself, or directly on the potential bias introduced by its omission.26 This leads to a posterior distribution for the causal effect of interest that inherently reflects the uncertainty stemming from the presence of these unmeasured factors.26</p>
+<p>The Bayesian perspective treats the true causal effect as a random variable with an associated probability distribution, which readily accommodates the uncertainty inherent in the presence of unobserved confounders.26 Instead of providing a single point estimate of the causal effect, Bayesian analysis yields a full posterior distribution. This distribution represents the probability of different values of the causal effect being the true value, given the observed data and the prior beliefs about the unobserved confounding. Consequently, researchers can make probabilistic statements about the range of plausible causal effects, such as the probability that the effect falls within a specific interval. The specification of prior distributions is a crucial step in Bayesian sensitivity analysis for OVB.26 Researchers can choose priors that reflect their existing knowledge or beliefs about the likely magnitude and direction of the bias caused by unobserved confounding, drawing upon domain expertise, previous research findings, or theoretical considerations.26 These priors can be informative, reflecting strong prior beliefs, or non-informative, indicating a lack of strong prior knowledge about the potential bias.26</p>
+<p>Bayesian sensitivity analysis involves examining how the resulting posterior distribution of the causal effect changes under different plausible prior distributions for the unobserved confounder or the bias it introduces.16 This process allows researchers to assess the extent to which their conclusions about the causal effect are driven by their prior assumptions about the unobserved confounding, rather than solely by the information contained in the observed data.16 If the posterior distribution of the causal effect is found to be highly sensitive to the choice of prior, it suggests that the data alone do not provide strong enough evidence to overcome the initial uncertainty introduced by the potential for unobserved confounding. In such cases, researchers might need to consider alternative study designs or seek additional data to strengthen their causal inferences. Conversely, if the posterior distribution remains relatively stable across a range of plausible prior specifications, it indicates that the findings are more robust to the uncertainty surrounding unobserved confounders.</p>
+<hr>
+<p><strong>Machine Learning Techniques: Modeling and Estimating the Distribution of OVB in Complex Settings.</strong></p>
+<p>Machine learning techniques have emerged as powerful tools for addressing the challenges of omitted variable bias, particularly in complex settings involving high-dimensional data and non-linear relationships.1 These methods offer flexible and often non-parametric approaches to modeling the intricate relationships between variables, which can be especially beneficial when dealing with a multitude of potential confounders.1 Machine learning algorithms can be effectively used to estimate the conditional expectation function of the outcome variable, a crucial component in many modern causal inference methodologies.1 The ability of machine learning to handle non-linearities and high-dimensional datasets makes it a valuable asset in addressing OVB in scenarios where traditional parametric methods might fall short. For instance, in situations where the effects of confounders are not simply additive or linear, machine learning models can capture these more complex interactions.</p>
+<p>While machine learning excels at predictive tasks, quantifying the uncertainty associated with causal effect estimates, especially in the presence of omitted variable bias, remains an active area of research and development.27 Some machine learning-based causal inference methods, such as those employing Bayesian Additive Regression Trees (BART), are capable of providing estimates of the uncertainty inherent in the estimated causal effects.27 Additionally, techniques like Double Machine Learning (DoubleML) are incorporating methods for conducting sensitivity analysis specifically with respect to omitted variable bias within the framework of machine learning models.17 Despite the predictive power of many machine learning algorithms, their inherent “black box” nature can sometimes make it challenging to understand precisely how they are accounting for confounding variables and to rigorously assess the uncertainty in their causal estimates. Consequently, ongoing efforts are focused on integrating methods like bootstrapping and Bayesian approaches with machine learning to enhance the interpretability and uncertainty quantification of causal inferences derived from these powerful techniques.</p>
+<p>Recent advancements in the field have focused on extending the theoretical framework of omitted variable bias to encompass non-linear models, often leveraging the estimation and inference capabilities of machine learning.1 These developments provide researchers with tools to bound the potential magnitude of bias in complex, non-linear models by employing plausibility judgments regarding the explanatory power of omitted variables.1 This is particularly significant for real-world applications where the relationships between variables are frequently non-linear and multifaceted. By providing methods to assess and bound OVB in the context of flexible machine learning models, researchers can move beyond the limitations of traditional linear models and strive for more reliable and accurate causal effect estimates across a wider spectrum of research questions and data structures.</p>
+<hr>
+<p><strong>Conclusion: Navigating the Challenges of Estimating OVB Distribution and Future Research Directions.</strong></p>
+<p>Estimating the distribution of omitted variable bias presents a multifaceted challenge in causal inference, and various approaches have been developed to address this issue, each with its own strengths and limitations. Analytical methods offer a fundamental understanding of the mechanisms underlying OVB, but their practical utility in estimating the distribution is often limited by the unobservable nature of the confounders. Sensitivity analysis provides a valuable framework for exploring how different assumptions about unobserved confounders might affect causal estimates, but it does not yield a single “corrected” estimate or distribution of the bias. Bounding approaches aim to define a plausible range for the true causal effect by making assumptions about the maximum influence of omitted variables, but the validity of these bounds hinges on the credibility of these assumptions. Simulation-based methods allow for controlled experimentation and the empirical assessment of bias distributions under specific scenarios, but the results are contingent on the chosen data-generating process. Bayesian methods offer a natural way to incorporate uncertainty through prior distributions, but the resulting inferences can be sensitive to the specification of these priors. Finally, machine learning techniques provide powerful tools for modeling complex relationships, but quantifying uncertainty in causal effect estimates, especially in the presence of OVB, remains an evolving area.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Method</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Strengths</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Limitations</span></td>
+</tr>
+<tr class="even">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Analytical Methods</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Provide a fundamental understanding of OVB.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Often rely on unobservable quantities.</span></td>
+</tr>
+<tr class="odd">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Sensitivity Analysis</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Explores the impact of potential confounding.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Does not provide a single “corrected” estimate or distribution.</span></td>
+</tr>
+<tr class="even">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Bounding Approaches</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Offer a range for the true effect.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Validity depends on the plausibility of assumptions.</span></td>
+</tr>
+<tr class="odd">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Simulation Methods</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Allow for controlled experimentation.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Results depend on the chosen data-generating process.</span></td>
+</tr>
+<tr class="even">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Bayesian Methods</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Naturally incorporate uncertainty.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Results can be sensitive to prior specification.</span></td>
+</tr>
+<tr class="odd">
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Machine Learning Techniques</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Handle complex relationships.</span></td>
+<td><span style="font-size:11pt;font-family:'Google Sans Text',sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Uncertainty quantification in causal settings is still developing.</span></td>
+</tr>
+</tbody>
+</table>
+<p>Despite the advancements in these methodologies, the fundamental challenge of quantifying the impact of unobserved confounders persists. The very nature of an omitted variable – being unobserved – makes direct estimation of its properties and its relationships with other variables inherently difficult. Making credible plausibility judgments in bounding approaches and selecting appropriate prior distributions in Bayesian methods often involves a degree of subjectivity. Furthermore, extending the analysis of OVB to more complex non-linear models and ensuring the interpretability of causal inferences derived from machine learning remain active areas of research.</p>
+<p>Future research should focus on developing more robust and practical methods for estimating the distribution of omitted variable bias. This includes exploring data-driven approaches to inform the plausibility judgments in bounding techniques and the specification of prior distributions in Bayesian frameworks, potentially leveraging auxiliary data sources or meta-analytic evidence. Further investigation into extending OVB analysis to non-linear and high-dimensional settings, particularly within the context of machine learning, is also crucial. The development of more user-friendly software tools and clear guidelines for implementing and interpreting the various methods for estimating OVB distribution would greatly benefit applied researchers. Additionally, exploring novel data sources and study designs that are inherently less susceptible to omitted variable bias remains an important avenue. Finally, research into methods for combining information from different sensitivity analysis and bounding approaches could lead to more robust and comprehensive assessments of the uncertainty introduced by omitted variable bias in causal inference.</p>
+<hr>
+<section id="works-cited" class="level4">
+<h4 class="anchored" data-anchor-id="works-cited"><strong>Works cited</strong></h4>
+<ol type="1">
+<li>Long Story Short: Omitted Variable Bias in Causal Machine Learning - arXiv, accessed April 3, 2025, <a href="https://arxiv.org/html/2112.13398v5" class="uri">https://arxiv.org/html/2112.13398v5</a></li>
+<li>LONG STORY SHORT: OMITTED VARIABLE BIAS IN CAUSAL MACHINE LEARNING - Carlos Cinelli, accessed April 3, 2025, <a href="https://carloscinelli.com/files/Chernozhukov%20et%20al%20(2021)%20-%20OVB%20for%20ML.pdf" class="uri">https://carloscinelli.com/files/Chernozhukov%20et%20al%20(2021)%20-%20OVB%20for%20ML.pdf</a></li>
+<li>What Is Omitted Variable Bias? | Definition &amp; Examples - Scribbr, accessed April 3, 2025, <a href="https://www.scribbr.com/research-bias/omitted-variable-bias/" class="uri">https://www.scribbr.com/research-bias/omitted-variable-bias/</a></li>
+<li>Omitted-variable bias - Wikipedia, accessed April 3, 2025, <a href="https://en.wikipedia.org/wiki/Omitted-variable_bias" class="uri">https://en.wikipedia.org/wiki/Omitted-variable_bias</a></li>
+<li>Think before you act: Facing omitted variable bias - arXiv, accessed April 3, 2025, <a href="https://arxiv.org/html/2501.17026v1" class="uri">https://arxiv.org/html/2501.17026v1</a></li>
+<li>Causal inference with observational data and unobserved confounding variables - bioRxiv, accessed April 3, 2025, <a href="https://www.biorxiv.org/content/10.1101/2024.02.26.582072v1.full-text" class="uri">https://www.biorxiv.org/content/10.1101/2024.02.26.582072v1.full-text</a></li>
+<li>Examining Management Research With the Impact Threshold of a Confounding Variable (ITCV) - Terry College of Business, accessed April 3, 2025, <a href="https://www.terry.uga.edu/wp-content/uploads/Busenbark-Yoon-Gamache-and-Withers-2022.pdf" class="uri">https://www.terry.uga.edu/wp-content/uploads/Busenbark-Yoon-Gamache-and-Withers-2022.pdf</a></li>
+<li>www.econstor.eu, accessed April 3, 2025, <a href="https://www.econstor.eu/bitstream/10419/283961/1/1353.pdf" class="uri">https://www.econstor.eu/bitstream/10419/283961/1/1353.pdf</a></li>
+<li>6.1 Omitted Variable Bias | Introduction to Econometrics with R, accessed April 3, 2025, <a href="https://www.econometrics-with-r.org/6.1-omitted-variable-bias.html" class="uri">https://www.econometrics-with-r.org/6.1-omitted-variable-bias.html</a></li>
+<li>Omitted Variable Bias: Definition, Avoiding &amp; Example - Statistics By Jim, accessed April 3, 2025, <a href="https://statisticsbyjim.com/regression/omitted-variable-bias/" class="uri">https://statisticsbyjim.com/regression/omitted-variable-bias/</a></li>
+<li>Omitted Variable Bias Framework for Sensitivity Analysis of Instrumental Variables | Biometrika | Oxford Academic, accessed April 3, 2025, <a href="https://academic.oup.com/biomet/advance-article/doi/10.1093/biomet/asaf004/7978915" class="uri">https://academic.oup.com/biomet/advance-article/doi/10.1093/biomet/asaf004/7978915</a></li>
+<li>Making Sense of Sensitivity: Extending Omitted Variable Bias …, accessed April 3, 2025, <a href="https://academic.oup.com/jrsssb/article-abstract/82/1/39/7056023" class="uri">https://academic.oup.com/jrsssb/article-abstract/82/1/39/7056023</a></li>
+<li>Bias and Sensitivity Analysis When Estimating Treatment Effects from the Cox Model with Omitted Covariates - PMC, accessed April 3, 2025, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4230475/" class="uri">https://pmc.ncbi.nlm.nih.gov/articles/PMC4230475/</a></li>
+<li>An Omitted Variable Bias Framework for Sensitivity Analysis of Instrumental Variables, accessed April 3, 2025, <a href="https://sbe.org.br/anais/45EBE/econometria/45_EBE_paper_2.pdf" class="uri">https://sbe.org.br/anais/45EBE/econometria/45_EBE_paper_2.pdf</a></li>
+<li>Making Sense of Sensitivity: Extending Omitted Variable Bias - Carlos Cinelli, accessed April 3, 2025, <a href="https://carloscinelli.com/files/Cinelli%20and%20Hazlett%20(2020)%20-%20Making%20Sense%20of%20Sensitivity.pdf" class="uri">https://carloscinelli.com/files/Cinelli%20and%20Hazlett%20(2020)%20-%20Making%20Sense%20of%20Sensitivity.pdf</a></li>
+<li>Intermediate Causal Inference - Andy Eggers, accessed April 3, 2025, <a href="https://andy.egge.rs/teaching/oss/ici_2019/eggers_ICI_slides_v1.pdf" class="uri">https://andy.egge.rs/teaching/oss/ici_2019/eggers_ICI_slides_v1.pdf</a></li>
+<li>10. Sensitivity analysis — DoubleML documentation, accessed April 3, 2025, <a href="https://docs.doubleml.org/stable/guide/sensitivity.html" class="uri">https://docs.doubleml.org/stable/guide/sensitivity.html</a></li>
+<li>Carlos Cinelli - Making Sense of Sensitivity: Extending Omitted Variable Bias - YouTube, accessed April 3, 2025, <a href="https://www.youtube.com/watch?v=HZvZYywf3fg" class="uri">https://www.youtube.com/watch?v=HZvZYywf3fg</a></li>
+<li>LONG STORY SHORT: OMITTED VARIABLE BIAS IN CAUSAL MACHINE LEARNING - Carlos Cinelli, accessed April 3, 2025, <a href="https://carloscinelli.com/files/Chernozhukov%20et%20al%20-%20OVB%20for%20ML.pdf" class="uri">https://carloscinelli.com/files/Chernozhukov%20et%20al%20-%20OVB%20for%20ML.pdf</a></li>
+<li>(PDF) Investigating Omitted Variable Bias In Regression Parameter Estimation: A Genetic Algorithm Approach - ResearchGate, accessed April 3, 2025, <a href="https://www.researchgate.net/publication/39728492_Investigating_Omitted_Variable_Bias_In_Regression_Parameter_Estimation_A_Genetic_Algorithm_Approach" class="uri">https://www.researchgate.net/publication/39728492_Investigating_Omitted_Variable_Bias_In_Regression_Parameter_Estimation_A_Genetic_Algorithm_Approach</a></li>
+<li>r - Omitted Variable Bias in Linear Regression - Simulation - Cross …, accessed April 3, 2025, <a href="https://stats.stackexchange.com/questions/142693/omitted-variable-bias-in-linear-regression-simulation" class="uri">https://stats.stackexchange.com/questions/142693/omitted-variable-bias-in-linear-regression-simulation</a></li>
+<li>Monte Carlo simulation on Omitted Variable Bias : r/RStudio - Reddit, accessed April 3, 2025, <a href="https://www.reddit.com/r/RStudio/comments/ebg6jg/monte_carlo_simulation_on_omitted_variable_bias/" class="uri">https://www.reddit.com/r/RStudio/comments/ebg6jg/monte_carlo_simulation_on_omitted_variable_bias/</a></li>
+<li>A COMPARISON OF SOME ESTIMATION METHODS FOR HANDLING OMITTED VARIABLES : A SIMULATION STUDY - Diva Portal, accessed April 3, 2025, <a href="https://uu.diva-portal.org/smash/get/diva2:1439186/FULLTEXT01.pdf" class="uri">https://uu.diva-portal.org/smash/get/diva2:1439186/FULLTEXT01.pdf</a></li>
+<li>Monte-Carlo simulation for omitted variable bias, accessed April 3, 2025, <a href="https://capone.mtsu.edu/eaeff/462/wpp/MonteCarloOmitVarb.html" class="uri">https://capone.mtsu.edu/eaeff/462/wpp/MonteCarloOmitVarb.html</a></li>
+<li>Bayesian causal inference: A critical review and tutorial (Standard Format) - YouTube, accessed April 3, 2025, <a href="https://www.youtube.com/watch?v=7Cwl6DgL64o" class="uri">https://www.youtube.com/watch?v=7Cwl6DgL64o</a></li>
+<li>A Practical Introduction to Bayesian Estimation of Causal Effects …, accessed April 3, 2025, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8640942/" class="uri">https://pmc.ncbi.nlm.nih.gov/articles/PMC8640942/</a></li>
+<li>Bayesian Causal Inference for Observational Studies with Missingness in Covariates and Outcomes | Biometrics | Oxford Academic, accessed April 3, 2025, <a href="https://academic.oup.com/biometrics/article/79/4/3624/7587588" class="uri">https://academic.oup.com/biometrics/article/79/4/3624/7587588</a></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/bilguunbatsaikhan\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

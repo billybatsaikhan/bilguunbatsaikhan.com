@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2021-05-14">
+<meta name="description" content="Proof Of Concept (POC) is one of the key phases in Machine Learning (ML)-related projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot.">
+
+<title>Deep dive into MLOps. – Applied Data Science &amp; ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<meta property="og:title" content="Deep dive into MLOps. – Applied Data Science &amp; ML">
+<meta property="og:description" content="Proof Of Concept (POC) is one of the key phases in Machine Learning (ML)-related projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot.">
+<meta property="og:image" content="https://bilguunbatsaikhan.com/images/2021/05/Screen-Shot-2021-05-19-at-11.15.12.png">
+<meta property="og:site_name" content="Applied Data Science &amp; ML">
+<meta property="og:image:height" content="868">
+<meta property="og:image:width" content="1924">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Applied Data Science &amp; ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bilguuniqo"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points"><strong>Key points:</strong></a></li>
+  <li><a href="#complex-models-erode-boundaries" id="toc-complex-models-erode-boundaries" class="nav-link" data-scroll-target="#complex-models-erode-boundaries">Complex Models Erode Boundaries</a></li>
+  <li><a href="#data-dependencies-cost-more-than-code-dependencies" id="toc-data-dependencies-cost-more-than-code-dependencies" class="nav-link" data-scroll-target="#data-dependencies-cost-more-than-code-dependencies">Data Dependencies Cost More than Code Dependencies</a></li>
+  <li><a href="#feedback-loops" id="toc-feedback-loops" class="nav-link" data-scroll-target="#feedback-loops">Feedback Loops</a></li>
+  <li><a href="#ml-system-anti-patterns" id="toc-ml-system-anti-patterns" class="nav-link" data-scroll-target="#ml-system-anti-patterns">ML-System Anti-Patterns</a></li>
+  <li><a href="#configuration-debt" id="toc-configuration-debt" class="nav-link" data-scroll-target="#configuration-debt">Configuration Debt</a></li>
+  <li><a href="#dealing-with-the-changes-in-the-external-world" id="toc-dealing-with-the-changes-in-the-external-world" class="nav-link" data-scroll-target="#dealing-with-the-changes-in-the-external-world">Dealing with the Changes in the External World</a></li>
+  <li><a href="#other-areas-of-ml-related-debt" id="toc-other-areas-of-ml-related-debt" class="nav-link" data-scroll-target="#other-areas-of-ml-related-debt">Other Areas of ML-related Debt</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>Conclusion</strong></a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Deep dive into MLOps.</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">mlops</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Proof Of Concept (POC) is one of the key phases in Machine Learning (ML)-related projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 14, 2021</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="motivation" class="level3">
+<h3 class="anchored" data-anchor-id="motivation">Motivation</h3>
+<p>Machine Learning (ML) Proof Of Concept (POC) is one of the key phases in ML projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot.</p>
+<p>At the end of the POC phase, if the results are satisfactory and stakeholders agree to move forward, the ML engineer gets tasked with finding and implementing an appropriate method for deploying the model into production. Depending on the business use case and the scale of the project (and many other factors), he/she will usually select to proceed with one of the following (non-exhaustive):</p>
+<ol type="1">
+<li><strong>Type 1</strong>: Save the trained model artifacts in the backend. Implement an inference logic that uses the trained model. The frontend engineer then requests the predictions from the backend via HTTP.</li>
+<li><strong>Type 2</strong>: Choose to use one of the cloud services (Amazon AWS, Google GCP, Microsoft Azure) for training the model. Transfer the training data to the cloud, train the model and deploy it in the cloud. Set up a cloud endpoint and return predictions via HTTP requests.</li>
+<li><strong>Type 3 (worst)</strong>: Implement the training and the inference logic in the backend. At the same time, implement the data <strong>e</strong>xtraction, <strong>t</strong>ransformation and the <strong>l</strong>oading (ETL) processes in the backend so that the system is able to retrain the model when needed. Try his/her best to setup monitoring, so that one day when things go wrong, he/she can find and fix the problem.</li>
+<li><strong>Type 4</strong>: Use the cloud services to setup everything (ETL, data preprocessing, model training, monitoring, configuration, etc.). The frontend engineer then requests predictions via HTTP endpoint provided by the cloud service.</li>
+<li><strong>Type 5</strong>: Use open-source packages, connect and build everything manually.</li>
+</ol>
+<p>There can be many other options too. However the key message here is that <strong>ML deployment can take on many forms.</strong></p>
+<p>With ever increasing data and the expertise of the people dealing with the data, various ML models are being trained, tested, and deployed into production with unprecedented rates. However, with the increasing number of model deployments, ML practitioners have been experiencing a set of problems related to the unique property of ML-embedded systems - <strong>the usage of data</strong>. And this is exactly where MLOps comes to the rescue. Similar to the concept/culture of <a href="https://en.wikipedia.org/wiki/DevOps">DevOps</a> in the traditional software engineering discipline, the term <strong>MLOps refers to the engineering culture and best practices related to deploying and maintaining real-world ML systems</strong>.</p>
+<hr>
+<p><strong>There are many resources related to MLOps.</strong> Some of my favorites are:</p>
+<ol type="1">
+<li><a href="https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf">“Hidden Technical Debt in Machine Learning Systems”</a> - Google <strong>(Analyzed in this blog post.)</strong></li>
+<li><a href="https://developers.google.com/machine-learning/guides">“Machine Learning Guides”</a> - Google</li>
+<li><a href="https://www.youtube.com/watch?v=_xH7mlDGb0c">“MLOps for non-DevOps folks, a.k.a. “I have a model, now what?!”</a> - Hannes Hapke</li>
+<li><a href="https://www.youtube.com/watch?v=06-AZXmwHjo">“From Model-centric to Data-centric AI”</a> - Andrew Ng</li>
+<li><a href="https://www.youtube.com/watch?v=tsPuVAMaADY&amp;t=320s">“Bridging AI’s Proof-of-Concept to Production Gap”</a> - Andrew Ng</li>
+<li><a href="https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning">“MLOps: Continuous delivery and automation pipelines in machine learning”</a> - Google</li>
+<li><a href="https://www.youtube.com/watch?v=_jnhXzY1HCw">“What is ML Ops? Best Practices for DevOps for ML”</a> - Kaz Sato</li>
+<li>…and so on.</li>
+</ol>
+<p>Perhaps the most popular resource on the above list is the paper called <a href="https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf">“Hidden Technical Debt in Machine Learning Systems”</a> by Google.</p>
+<p>When I first read the paper, I found it to be highly useful in practice and understood that I need to go over this paper whenever I am building ML solutions. So to make my life a bit easier, I have decided to summarize the paper and do it so using simple terms and explanations.</p>
+<hr>
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-11.15.12.png" class="img-fluid"></p>
+</section>
+<section id="key-points" class="level3">
+<h3 class="anchored" data-anchor-id="key-points"><strong>Key points:</strong></h3>
+<ol type="1">
+<li><strong>Developing and deploying ML systems might seem fast and cheap</strong>, <strong>but</strong> <strong>maintaining</strong> <strong>it for the long term</strong> <strong>is</strong> <strong>difficult and expensive</strong>.</li>
+<li><strong>Goal</strong> <strong>of dealing with technical debt is not to add new functionality, but to enable future improvements, reduce errors, and improve maintainability.</strong></li>
+<li><strong>Data influences ML system behavior.</strong> <strong>Technical debt in ML systems may be difficult to detect because it exists at the system level rather than the code level.</strong></li>
+</ol>
+<hr>
+</section>
+<section id="complex-models-erode-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="complex-models-erode-boundaries">Complex Models Erode Boundaries</h3>
+<section id="entanglement" class="level4">
+<h4 class="anchored" data-anchor-id="entanglement"><strong><u>1. &nbsp;Entanglement</u></strong></h4>
+<ol type="1">
+<li><strong>CACE principle:</strong><br>
+<strong>CACE stands for Changing Anything Changes Everything.</strong> It refers to the entangled property of ML-systems, where changing the input distributions of a single feature can lead to changes in the rest of the features. CACE applies to input signals, hyper-parameters, learning settings, sampling methods, convergence thresholds, data selection, and essentially every other possible tweak.</li>
+<li><strong>Possible solution #1:</strong><br>
+<strong>If the problem can be decomposed into sub-problems (disjointed, uncorrelated), train models for each sub-problem and serve ensemble models.</strong> In many cases ensembles work well because the errors in the component models are uncorrelated. <u>However, ensemble models lead to strong entanglement: improving an individual model may actually make the system accuracy worse if the remaining errors are more strongly correlated with the other components</u>.</li>
+<li><strong>Possible solution #2:</strong><br>
+<strong>Monitor and detect changes in the prediction behavior in real-time.</strong> Use visualization tools to analyze the changes.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-14.19.32.png" class="img-fluid figure-img"></p>
+<figcaption>Example of feature entanglement: complex correlation of features.</figcaption>
+</figure>
+</div>
+</section>
+<section id="correction-cascades-chain-reaction" class="level4">
+<h4 class="anchored" data-anchor-id="correction-cascades-chain-reaction"><strong><u>2. Correction Cascades (chain reaction)</u></strong></h4>
+<ol type="1">
+<li>When we have a ready-to-use <strong>model m<sub>a</sub></strong> for <strong>problem A</strong> and need to train a new model for a <strong>problem A<sup>‘</sup><strong>, it makes sense to train a </strong>correction model m<sup>’</sup><sub>a</sub></strong> that takes as input the predictions of the <strong>model m<sub>a</sub></strong>.</li>
+<li>This dependency can be cascaded further, for example training a <strong>model m<sup>’’</sup><sub>aa</sub></strong> based on the <strong>model m<sup>’</sup><sub>a</sub></strong>.</li>
+<li>This dependency structury creates an <strong>improvement deadlock</strong>. When we try to improve the accuracy of a single model, other models are affected by the change causing system-level issues.</li>
+<li><strong>Possible solution #1</strong>:<br>
+Train and tune the <strong>model m<sub>a</sub></strong> directly for the <strong>problem A<sup>’</sup></strong> by adding appropriate features specific to the <strong>problem A<sup>’</sup></strong>.</li>
+<li><strong>Possible solution #2</strong>:<br>
+Create a new model for the <strong>problem A<sup>’</sup></strong>.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-12.21.47.png" class="img-fluid figure-img"></p>
+<figcaption>Example of correction cascades.</figcaption>
+</figure>
+</div>
+</section>
+<section id="undeclared-consumers-please-let-us-know-if-you-are-using" class="level4">
+<h4 class="anchored" data-anchor-id="undeclared-consumers-please-let-us-know-if-you-are-using"><u><strong>3. Undeclared Consumers</strong></u> <strong>(Please let us know if you are using!)</strong></h4>
+<ol type="1">
+<li>Often, <strong>predictions of a model are used in other services.</strong></li>
+<li>If we don’t <strong>identify all end users of a model</strong>, later in the process, if we make changes to the model, the secret consumers will be <strong>affected silently and will face strange issues</strong>. Without clear definition of consumers, it becomes difficult and costly to make changes to the model at all.</li>
+<li>In practice, <strong>engineers will choose to use the most accessible signal at hand</strong> (e.g.&nbsp;model predictions), especially when deadlines are approaching.</li>
+<li><strong>Possible solution:</strong><br>
+Setup <u>access restrictions</u> and <u>determine all consumers</u>. Similarly, setting up <a href="https://en.wikipedia.org/wiki/Service-level_agreement">service-level agreements (SLAs)</a> would also work.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-14.33.21.png" class="img-fluid figure-img"></p>
+<figcaption>Example of an undeclared consumer.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="data-dependencies-cost-more-than-code-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="data-dependencies-cost-more-than-code-dependencies">Data Dependencies Cost More than Code Dependencies</h3>
+<section id="unstable-data-dependencies-can-i-rely-on-you" class="level4">
+<h4 class="anchored" data-anchor-id="unstable-data-dependencies-can-i-rely-on-you"><u><strong>1. Unstable Data Dependencies</strong></u> <strong>(Can I rely on you?)</strong></h4>
+<ol type="1">
+<li><strong>ML-systems often consume data (input signals) produced by other systems.</strong></li>
+<li><strong>Some data might be unstable</strong> (qualitatively or quantitatively changing over time).<br>
+<u><strong>For example:</strong></u><br>
+
+<ol type="a">
+<li>Input data to <strong>system B</strong> is produced by a machine learning model from <strong>system A</strong>, and <strong>system A</strong> decides to update its model.<br>
+</li>
+<li>Input data comes from a data-dependent lookup table (e.g.&nbsp;calculates TF/IDF scores or semantic mappings).<br>
+</li>
+<li><strong>Engineering ownership</strong> <strong>of the input signal is separate from the engineering ownership of the model that consumes it.</strong> Engineers who own the input signal can make changes to the data at any time. This makes it costly for the engineers who consume the data to analyze how the change affects their system.<br>
+</li>
+<li><strong>Corrections in the input data can lead to detrimental consequences too!</strong> Similar to the CACE principle.<br>
+<u>For example:</u><br>
+A model that is previously trained on <u>mis-calibrated input signals</u> can start to behave strangely when the input data is recalibrated. This means that although the update was <u>meant to fix a problem</u>, it actually <u>introduced complications</u> to the system.</li>
+</ol></li>
+<li><strong>Possible solution:</strong><br>
+<strong>Create versioned copy of the input data.</strong> Using stable version of the data until the new data is checked and tested will ensure that the system is stable. <strong>***</strong>Keep in mind that saving versioned copies of the data means we have to deal with potential data staleness and the cost of maintenance.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-16.27.59.png" class="img-fluid figure-img"></p>
+<figcaption>Example of data dependency between systems.</figcaption>
+</figure>
+</div>
+</section>
+<section id="underutilized-data-dependencies-how-will-this-feature-affect-me-in-the-future" class="level4">
+<h4 class="anchored" data-anchor-id="underutilized-data-dependencies-how-will-this-feature-affect-me-in-the-future"><u><strong>2. Underutilized Data Dependencies</strong></u> <strong>(How will this feature affect me in the future?)</strong></h4>
+<ol type="1">
+<li><strong>Underutilized data dependency - data that has very small incremental benefit for the model (0.0001% improvement)</strong>.</li>
+<li><u><strong>Example:</strong></u><br>
+<strong>A system introduces new product numbering logic to the system.</strong> Since instantly removing the old product numbering logic will lead to disasters (since other components depend on it), engineers decide to keep the new and the old numbering logics for the time being. This way, <strong>new products use the new product numbering logic only</strong>, but <strong>old products have both the new and the old product numbers</strong>. Accordingly, the model is retrained using both features continuing to rely on old product numbers for some products. A year later, <strong>when the old numbering logic code is deleted, it will be difficult for the maintainers to find what went wrong.</strong></li>
+<li><strong>Types of underutilized data dependency</strong>:<br>
+<strong>a) Legacy Features.</strong><br>
+A feature <strong>F</strong> is included in a model early in its development. Over time, <strong>F</strong> is made redundant by new features but this goes undetected.<br>
+<strong>b) Bundled Features.</strong><br>
+During an experiment, a group of features is evaluated and found to be useful. Because of deadline pressures, the group of features are added to the model together, possibly including features with low value.<br>
+<strong>c) ǫ-Features.</strong> As machine learning researchers, it is tempting to improve the model accuracy even when the accuracy gain is small and the complexity overhead is high.<br>
+<strong>d) Correlated Features.</strong> Often two features are strongly correlated, but one is more directly causal. Many ML methods have difficulty detecting this and credit the two features equally, or may even pick the non-causal one. When the correlations disappear in the future, the model will perform poorly.</li>
+<li><strong>Possible solution:</strong><br>
+<strong>Leave-one-feature-out</strong> evaluations can be used to detect underutilized dependencies. Regularly performing this evaluation is recommended.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-18.11.04.png" class="img-fluid figure-img"></p>
+<figcaption>Example of underutilized data dependency. Feature J is an old feature similar to Feature K. In the future, when we remove Feature J modules that depend on it will cause secret failures.</figcaption>
+</figure>
+</div>
+</section>
+<section id="static-analysis-of-data-dependencies-data-catalogs" class="level4">
+<h4 class="anchored" data-anchor-id="static-analysis-of-data-dependencies-data-catalogs"><u><strong>3. Static Analysis of Data Dependencies</strong></u> <strong>(Data Catalogs!)</strong></h4>
+<ol type="1">
+<li>In traditional code, compilers and build systems perform static analysis of dependency graphs. <strong>Tools for static analysis of data dependencies</strong> are far less common, but <strong>are essential for error checking, tracking down consumers, and enforcing migration and updates</strong>.</li>
+<li><strong>Annotating data sources and features with metadata</strong> (e.g.&nbsp;deprecation, platform-specific availability, and domain-specific applicability), and setting up automatic checks to make sure all annotations are updated <strong>helps to resolve the dependency tree</strong> (users and systems who use the data).</li>
+<li>This kind of tooling can make <strong>migration and deletion much safer</strong> in practice.</li>
+<li>Google’s solution can be found <a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41159.pdf">here</a> (Section 8: “AUTOMATED FEATURE MANAGEMENT”).</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-19-at-18.40.03.png" class="img-fluid figure-img"></p>
+<figcaption>Example of data dependency management.</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+</section>
+<section id="feedback-loops" class="level3">
+<h3 class="anchored" data-anchor-id="feedback-loops">Feedback Loops</h3>
+<p>When it comes to <strong>live ML systems</strong> that update their behavior over time , it is difficult to predict how they will behave when they are released into production. This is called <strong>analysis debt</strong> - the difficulty of measuring the behavior of a model before deployment.</p>
+<section id="direct-feedback-loops-learning-wrong-things" class="level4">
+<h4 class="anchored" data-anchor-id="direct-feedback-loops-learning-wrong-things"><strong><u>1. Direct Feedback Loops</u> (Learning wrong things)</strong></h4>
+<ol type="1">
+<li>A model may directly influence the selection of its own future training data.<br>
+<u>Example:</u><br>
+In an e-commerce website a model might recommend 10 different products to a new customer. The customer <u>might choose a product</u> category that he/she needs to purchase at the moment, but <u>which is not related to his/her actual interests</u>. The <u>model captures this and retrains itself, learning the wrong interest</u> and becoming confident that the chosen product category conveys the customer’s interest.</li>
+<li><strong>Possible Solution #1:</strong><br>
+Acquiring customer feedback on the recommendations provided by the system.</li>
+<li><strong>Possible Solution #2:</strong><br>
+Increasing “exploration” of the model so that it doesn’t “exploit” small number of signals (<a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">Bandit Algorithms</a>).</li>
+<li><strong>Possible Solution #3:</strong><br>
+Using some amount of <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2013/11/bottou13a.pdf">randomization</a>.</li>
+</ol>
+</section>
+<section id="hidden-feedback-loops-we-were-connected" class="level4">
+<h4 class="anchored" data-anchor-id="hidden-feedback-loops-we-were-connected"><strong><u>2. Hidden Feedback Loops</u> (We were connected???)</strong></h4>
+<ol type="1">
+<li><strong>Hidden Feedback Loops - two systems influence each other indirectly (in a hidden, difficult-to-detect manner).</strong></li>
+<li>Difficult to detect!</li>
+<li>Improving one system may lead to changes in the behavior of the other.</li>
+<li>Hidden feedback loops can also occur in completely disjoint systems.<br>
+<u>Example:</u><br>
+Scenario of two investment firms when one firm makes changes to its bidding algorithm (improvements, bugs, etc.) and the other firm’s model catches this signal and changes its behavior too (might lead to disasters).</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="ml-system-anti-patterns" class="level3">
+<h3 class="anchored" data-anchor-id="ml-system-anti-patterns">ML-System Anti-Patterns</h3>
+<p><strong>In the real world, ML-related code takes a very small fraction of the entire system.</strong> Therefore, it is <u>important to consider other parts of the system</u> and <u>make sure that there are as few system-design anti-patterns as possible</u>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-20-at-17.05.22.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 1 in “Hidden Technical Debt in Machine Learning Systems”, Google.</figcaption>
+</figure>
+</div>
+<section id="glue-code-packages-should-be-replaceable-apis" class="level4">
+<h4 class="anchored" data-anchor-id="glue-code-packages-should-be-replaceable-apis"><strong><u>1. Glue Code</u></strong> (Packages should be replaceable –&gt; APIs)</h4>
+<ol type="1">
+<li><strong>Glue code system design</strong> - system with large portion of <u>code written to support the specific requirements of general-purpose packages</u>.</li>
+<li>Glue code makes it <strong>difficult to test alternatives</strong> methods or make improvements <strong>in the future</strong>.</li>
+<li>If <strong>ML code takes 5%</strong> and <strong>glue code takes 95%</strong> of the total code, it makes sense to implement a native solution rather than using general-purpose packages.</li>
+<li><strong>Possible Solution:</strong><br>
+Wrap general-purpose packages into <strong>common APIs</strong>. This way we can <strong>reuse the APIs</strong> <strong>and</strong> <strong>not worry</strong> <strong>about changing packages</strong> (e.g.&nbsp;s<a href="https://arxiv.org/pdf/1309.0238.pdf">cikit-learn’s Estimator API</a> with common fit(), predict() methods for all models).</li>
+</ol>
+</section>
+<section id="pipeline-jungles-keep-things-organized" class="level4">
+<h4 class="anchored" data-anchor-id="pipeline-jungles-keep-things-organized"><u><strong>2. Pipeline Jungles</strong></u> <strong>(Keep things organized)</strong></h4>
+<ol type="1">
+<li><strong>Usually occurs during data preparation.</strong></li>
+<li><strong>Adding a new data source</strong> to the data pipeline 1-by-1<strong>,</strong> gradually makes it <strong>difficult to make improvements and detect errors</strong>.</li>
+<li><strong>Possible Solution #1:</strong><br>
+<strong>Think about data collection and feature extraction as a whole.</strong> Redesign the jungle pipeline from scratch. It might require a lot of effort, but is an investment worth the price.</li>
+<li><strong>Possible Solution #2:</strong><br>
+<strong>Make sure researchers and engineers are not overly separated.</strong> Packages written by the researchers may seem like black-box algorithms to the engineers who use them. If possible, <strong>integrate researchers and engineers into the same team</strong> (or create hybrid engineers).</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-20-at-18.42.28.png" class="img-fluid figure-img"></p>
+<figcaption>Icons from thenounproject.com. Integrating researchers and engineers into one team.</figcaption>
+</figure>
+</div>
+</section>
+<section id="dead-experimental-codepaths-clean-your-room" class="level4">
+<h4 class="anchored" data-anchor-id="dead-experimental-codepaths-clean-your-room"><u><strong>3.</strong></u> <strong><u>Dead Experimental Codepaths</u> (Clean your room!)</strong></h4>
+<ol type="1">
+<li><strong>Adding experimental code to the production system can cause issues in the long term.</strong></li>
+<li>It becomes difficult/impossible to test all possible interactions between codepaths. The system becomes overly complex with many experimental branches.</li>
+<li>“A famous example of the dangers here was Knight Capital’s system losing $465 million in 45 minutes, because of unexpected behavior from obsolete experimental codepaths.” (<a href="https://www.sec.gov/news/press-release/2013-222">source</a>)</li>
+<li><strong>Possible Solution:</strong><br>
+“<strong>Periodically reexamine each experimental branch</strong> to see what can be ripped out. Often only a small subset of the possible branches is actually used; many others may have been tested once and abandoned.”</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/Screen-Shot-2021-05-24-at-16.27.09.png" class="img-fluid figure-img"></p>
+<figcaption>Example of dead code.</figcaption>
+</figure>
+</div>
+</section>
+<section id="abstraction-depth-can-we-abstract-this" class="level4">
+<h4 class="anchored" data-anchor-id="abstraction-depth-can-we-abstract-this"><u><strong>4.</strong></u> <strong><u>Abstraction Depth</u> (Can we abstract this?)</strong></h4>
+<ol type="1">
+<li>Relational database is a successful example of abstraction.</li>
+<li>In ML it is difficult to come up with robust abstraction (how to create abstractions for a data stream, a model and a prediction?).</li>
+<li><u>Example abstraction:</u><br>
+<strong><a href="https://web.eecs.umich.edu/~mosharaf/Readings/Parameter-Server.pdf">Parameter-server abstraction</a> - framework for distributed ML problems.</strong> “Data and workloads are distributed over worker nodes, while the server nodes maintain globally shared parameters, represented as dense or sparse vectors and matrices.”</li>
+</ol>
+</section>
+<section id="common-smells-somethings-fishy" class="level4">
+<h4 class="anchored" data-anchor-id="common-smells-somethings-fishy"><u><strong>5.</strong></u> <strong><u>Common Smells</u> (Something’s fishy…)</strong></h4>
+<ol type="1">
+<li>“<strong>Code Smells</strong> <strong>are patterns of code that suggest there might be a problem</strong>, that there might be a better way of writing the code or that more design perhaps should go into it.” (<a href="https://github.com/lee-dohm/code-smells#:~:text=Code%20Smell%20is%20a%20term,perhaps%20should%20go%20into%20it.">source)</a></li>
+<li><strong>Plain-Old-Data Type Smells.</strong><br>
+<strong>Check what flows in and out of ML systems.</strong> The data (signal, features, information, etc.) flowing in and out of ML systems is usually of type integer or float. “In a robust system, a model parameter should know if it is a log-odds multiplier or a decision threshold, and a prediction should know various pieces of information about the model that produced it and how it should be consumed.”</li>
+<li><strong>Multiple-Language Smell.</strong><br>
+Using multiple programming languages, no matter the great packages written in it, makes it difficult to efficiently test and, later, transfer the ownership to others.</li>
+<li><strong>Prototype Smell.</strong><br>
+Constantly using prototype environments is an indication that the production system is “<u>brittle, difficult to change, or could benefit from improved abstractions and interfaces</u>”.<br>
+<u>This leads to 2 potential problems:</u><br>
+
+<ul>
+<li>Usage of the prototype environment as the production environment due to time pressures.<br>
+</li>
+<li>Prototype (small scale) solutions rarely reflect the reality of full-scale systems.</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="configuration-debt" class="level3">
+<h3 class="anchored" data-anchor-id="configuration-debt">Configuration Debt</h3>
+<p><strong>ML systems come with various configuration options:</strong><br>
+1. &nbsp;Choice of input features<br>
+2. &nbsp;Algorithm-specific learning configurations (hyperparameters, number of nodes, layers, etc.)<br>
+3. &nbsp;Pre- &amp; post-processing methods<br>
+4. &nbsp;Verification methods</p>
+<p>In full-scale systems, configuration code far exceeds the number of lines of traditional code. Mistakes in configuration can lead to loss of time, waste of computing resources, and other production issues. Thus, <strong>verifying and testing configurations is crucial</strong>.</p>
+<p><strong>Example of difficult-to-handle configurations (Choice of input features):</strong><br>
+1. &nbsp;Feature A was <u>incorrectly logged</u> from 9/13-9/17.<br>
+2. &nbsp;Feature B <u>isn’t available</u> before 10/7.<br>
+3. &nbsp;Feature C has to have 2 <u>different acquisition methods</u> due to changes in logging.<br>
+4. &nbsp;Feature D <u>isn’t available in production</u>. Substitute feature D’ must be used.<br>
+5. &nbsp;Feature Z <u>requires extra training memory</u> for the model to train efficiently.<br>
+6. &nbsp;Feature Q has <u>high latency</u>, so it makes Feature R also unusable.</p>
+<p><u><strong>Configurations must be:</strong></u><br>
+1. &nbsp;<strong>Easy to change.</strong> It should seem as making a small change to the previous configuration.<br>
+2. &nbsp;<strong>Difficult to make manual errors, omissions, or oversights</strong>.<br>
+3. &nbsp;<strong>Easy to analyze and compare with the previous version.</strong><br>
+4. &nbsp;<strong>Easy to check</strong> (basic facts and details)<strong>.</strong><br>
+5. &nbsp;<strong>Easy to detect unused or redundant settings.</strong><br>
+6. &nbsp;<strong>Code reviewed and maintained in a repository.</strong></p>
+<hr>
+</section>
+<section id="dealing-with-the-changes-in-the-external-world" class="level3">
+<h3 class="anchored" data-anchor-id="dealing-with-the-changes-in-the-external-world">Dealing with the Changes in the External World</h3>
+<p><strong>ML systems often directly interact with the <u>ever-changing</u> real world.</strong> Due to volatility in the real world, ML systems require <u>continuous maintenance</u>.</p>
+<section id="fixed-thresholds-in-dynamic-systems" class="level4">
+<h4 class="anchored" data-anchor-id="fixed-thresholds-in-dynamic-systems"><strong><u>1. Fixed Thresholds in Dynamic Systems</u></strong></h4>
+<ol type="1">
+<li>For problems that predict whether a given sample is true or not it is required to set a <strong>decision threshold</strong>.</li>
+<li>The classic approach is to choose a decision threshold that maximizes a certain metric (precision, recall, etc.).</li>
+<li><strong>When a model is retrained on a new data, the previous decision threshold usually becomes invalid.</strong></li>
+<li>Manually calculating thresholds is time consuming, so automatic optimization method is required.</li>
+<li>Optimal approach is to extract a held-out validation set and use it to automatically calculate the optimal thresholds.</li>
+<li><strong>Approach used by the Google Data Scientists can be found in the “<a href="https://www.unofficialgoogledatascience.com/2021/04/why-model-calibration-matters-and-how.html">Unofficial Google Data Science” blog post.</a></strong></li>
+<li>My simple approach dealing with decision thresholds - <a href="../../not-so-easy-poc/">blog post</a>.</li>
+</ol>
+<hr>
+</section>
+<section id="monitoring-and-testing" class="level4">
+<h4 class="anchored" data-anchor-id="monitoring-and-testing"><strong><u>2. Monitoring and Testing</u></strong></h4>
+<ol type="1">
+<li>Unit tests and end-to-end tests of systems are valuable. However, in the real-world, these tests are simply not enough.</li>
+<li><strong><u>Realtime monitoring with automated response</u> to issues is essential for long-term system reliability.</strong></li>
+<li><strong>What should be monitored:</strong><br>
+<u><strong>a) Prediction Bias</strong></u><br>
+<strong>Is the distribution of predicted and observed labels equal?</strong> Although this test is not enough to detect a model that simply outputs average values of label occurrences without regard to the input features, it is surprisingly effective.<br>
+<u>For example:</u><br>
+
+<ul>
+<li>Real-world behavior changes and, now, the training data distributions are not reflective of reality. <strong>In this case, analyzing predictions for various dimensions (e.g.&nbsp;based on race, gender, age, etc.) can isolate biases.</strong> Further, we can setup automated alerting in case we detect prediction bias.<br>
+<br>
+<strong><u>b) Action Limits</u></strong><br>
+<strong>In real-world ML systems that take actions such as bidding on items, classifying messages as spam, it is useful to set <u>action limits</u> as a sanity check.</strong> “If the system hits a limit for a given action, automated alerts should fire and trigger manual intervention or investigation.”<br>
+<u>For example:</u><br>
+</li>
+<li>Setting maximum number of bids per hour<br>
+</li>
+<li>Setting maximum ratio of spams to regular emails to be 3/5<br>
+<br>
+<strong><u>c) Up-Stream Producers</u></strong><br>
+When data comes from up-stream producers, the <strong>up-stream producers need to be monitored, tested, and routinely meet objectives</strong> that take into account the downstream ML system. Most importantly, any issues in the up-stream must be propagated to the downstream ML system. And the ML system must also notify its downstream consumers.<br>
+</li>
+</ul></li>
+<li><strong>Issues that occur in real-time</strong> and have impact on the system <strong>should be dealt with automatic measures.</strong> Human intervention can work, but <u>if the issue is time-sensitive it won’t work</u>. Automatic measures are worth the investment.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="other-areas-of-ml-related-debt" class="level3">
+<h3 class="anchored" data-anchor-id="other-areas-of-ml-related-debt">Other Areas of ML-related Debt</h3>
+<section id="data-testing-debt" class="level4">
+<h4 class="anchored" data-anchor-id="data-testing-debt"><strong><u>1. Data Testing Debt</u></strong></h4>
+<p><strong>Compared to traditional systems, ML systems replace code with data.</strong> And if the input data is the core component, it makes sense to test the data. Basic sanity checks, as well as complex distribution checks are useful.</p>
+</section>
+<section id="reproducibility-debt" class="level4">
+<h4 class="anchored" data-anchor-id="reproducibility-debt"><strong><u>2. Reproducibility Debt</u></strong></h4>
+<p><strong>Reproducibility of experiments is an important principle of the scientific method.</strong> However, randomized algorithms, parallel learning and complex real-world interactions make it difficult to reproduce results.</p>
+</section>
+<section id="process-management-debt" class="level4">
+<h4 class="anchored" data-anchor-id="process-management-debt"><strong><u>3. Process Management Debt</u></strong></h4>
+<p><strong>Mature systems may have hundreds of models running in parallel.</strong> <u>Updating configurations of many similar models safely and automatically, managing and assigning resources among models with different business properties, visualizing and detecting issues in the flow of data, and being able to recover the system from production issues are important features of a reliable ML system.</u></p>
+</section>
+<section id="cultural-debt" class="level4">
+<h4 class="anchored" data-anchor-id="cultural-debt"><strong><u>4. Cultural Debt</u></strong></h4>
+<p><strong>To keep an ML system healthy, create teams with diverse strengths in ML research and engineering.</strong><br>
+Team culture should reward:<br>
+- Deletion of features<br>
+- Reduction of complexity<br>
+- Improvements in reproducibility<br>
+- Improvements in stability<br>
+- Monitoring as well as improvements in accuracy.</p>
+<hr>
+</section>
+</section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion"><strong>Conclusion</strong></h3>
+<ol type="1">
+<li><strong>Speed is not evidence of low technical debt or good practices</strong> because the <strong><u>real cost of debt becomes apparent over time</u></strong>.</li>
+<li><strong>Useful questions for detecting ML technical debt:</strong><br>
+
+<ul>
+<li>How easily can an entirely new algorithmic approach be tested at full scale?<br>
+</li>
+<li>What is the transitive closure of all data dependencies? <u>Transitive closure</u> gives you the set of all places you can get to, from any starting place.<br>
+</li>
+<li>How precisely can the impact of a new change to the system be measured?<br>
+</li>
+<li>Does improving one model or signal degrade others?<br>
+</li>
+<li>How quickly can new members of the team be brought up to speed?</li>
+</ul></li>
+<li><strong>Key areas that will help reduce technical debt:</strong><br>
+
+<ul>
+<li>Maintainable ML<br>
+</li>
+<li>Better abstractions<br>
+</li>
+<li>Testing methodologies<br>
+</li>
+<li>Design patterns</li>
+</ul></li>
+<li><strong>Engineers and researchers both need to be aware of technical debt.</strong> “Research solutions that provide a tiny accuracy benefit at the cost of massive increases in system complexity are rarely wise practice.”</li>
+<li><strong>Dealing with technical debt can only be achieved by a change in team culture.</strong> “Recognizing, prioritizing, and rewarding this effort is important for the long term health of successful ML teams.”</li>
+</ol>
+<hr>
+<p>And this is it!</p>
+<p>In this post, I have tried to summarize the key points of the prominent paper “<a href="https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf">Hidden Technical Debt in Machine Learning Systems”</a> by Google.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/2021/05/avery-evans-NOm4f0xx2bU-unsplash.jpg" class="img-fluid figure-img"></p>
+<figcaption>“The Thinker” - by Avery Evans, unsplash.com</figcaption>
+</figure>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/bilguunbatsaikhan\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

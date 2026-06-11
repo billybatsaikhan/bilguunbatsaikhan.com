@@ -1,0 +1,19 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/posts/changes-to-my-workflow/index.html",
+      "/posts/the-claude-architecture-from-xml-tags-to-100m-weight-updates/index.html",
+      "/posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html",
+      "/posts/when-linear-regression-gets-massively-confused/index.html",
+      "/posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html",
+      "/posts/recommendations-as-treatments/index.html",
+      "/posts/causal-inference-cheatsheet/index.html",
+      "/posts/relationship-of-covariance-and-dot-product/index.html",
+      "/posts/deep-dive-into-mlops/index.html",
+      "/posts/data-engineering/index.html",
+      "/posts/takeaways-from-kaggle-jane-street-market-prediction-competition/index.html",
+      "/posts/not-so-easy-poc/index.html"
+    ]
+  }
+]
