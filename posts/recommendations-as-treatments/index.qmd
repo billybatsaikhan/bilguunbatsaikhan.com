@@ -49,42 +49,48 @@ In short, since the logged rewards are produced by the current production model,
 
 Let's consider an example:
 
-- x - contextual features
-- a - action/recommendation by the policy. For the sake of explanation, let's say we have 3 possible actions: action_A, action_B, action_C
-- π - production policy. In this example, the production policy π's propensity scores for the 3 possible actions are: 0.75, 0.15, and 0.10
-- π_new - new policy. In this example, the new policy π_new's propensity scores for the 3 possible actions are: 0.30, 0.6, 0.10
-- n - total number of samples
-- r - reward from the action
+- $x$ — contextual features
+- $a$ — action/recommendation by the policy. For the sake of explanation, let's say we have 3 possible actions: $a_A$, $a_B$, $a_C$
+- $\pi$ — production policy. In this example, $\pi$'s propensity scores for the 3 possible actions are $0.75$, $0.15$, and $0.10$
+- $\pi_{\text{new}}$ — new policy. In this example, $\pi_{\text{new}}$'s propensity scores for the 3 possible actions are $0.30$, $0.6$, $0.10$
+- $n$ — total number of samples
+- $r$ — reward from the action
 
-**Case \#1:**
+**Case #1:**
 
-π recommends action_A, and the user likes the recommendation and clicks on it.
+$\pi$ recommends $a_A$, and the user likes the recommendation and clicks on it.
 
-The utility score of π will be 1 (total correct_recommendations / total recommendations = 1 / 1 = 1). On the other hand, the utility score of π_new will be:
+The utility score of $\pi$ will be 1 (correct recommendations / total recommendations $= 1/1 = 1$). The utility score of $\pi_{\text{new}}$ will be:
 
-propensity of π_new for action_A \* (1 / propensity of π for action_A) / total recommendations = 0.30 \* (1 / 0.75) / 1 = 0.4
+$$
+\underbrace{0.30}_{\pi_{\text{new}}(a_A)} \cdot \frac{1}{\underbrace{0.75}_{\pi(a_A)}} \cdot \frac{1}{n} = 0.30 \cdot \frac{1}{0.75} \cdot \frac{1}{1} = 0.4
+$$
 
-Comparing the utilities, we observe the production policy π (utility=1) to be better than the new policy π_new (utility=0.4).
+Comparing the utilities, the production policy $\pi$ (utility $=1$) looks better than the new policy $\pi_{\text{new}}$ (utility $=0.4$).
 
-**Case \#2:**
+**Case #2:**
 
-π recommends action_A, and the user likes the recommendation and clicks on it. π_new also has the highest propensity score for action_A with 0.9.
+$\pi$ recommends $a_A$, the user clicks it, and $\pi_{\text{new}}$ also has the highest propensity for $a_A$ at $0.9$.
 
-The utility score of π will be 1 (total correct_recommendations / total recommendations = 1 / 1 = 1). On the other hand, the utility score of π_new will be:
+The utility score of $\pi$ will be 1. The utility score of $\pi_{\text{new}}$ will be:
 
-propensity of π_new for action_A \* (1 / propensity of π for action_A) / total recommendations = 0.90 \* (1 / 0.75) / 1 = 1.2
+$$
+0.90 \cdot \frac{1}{0.75} \cdot \frac{1}{1} = 1.2
+$$
 
-Comparing the utilities, we observe the new policy π_new (utility=1.2) to be better than the production policy π (utility=1).
+Now the new policy $\pi_{\text{new}}$ (utility $=1.2$) looks better than the production policy $\pi$ (utility $=1$).
 
-**Case \#3:**
+**Case #3:**
 
-π recommends action_A, but the user doesn't like the recommendation and clicks on action_B.
+$\pi$ recommends $a_A$, but the user doesn't like it and clicks $a_B$ instead.
 
-The utility score of π will be 0 (total correct_recommendations / total recommendations = 0 / 1 = 0). On the other hand, the utility score of π_new will be:
+The utility score of $\pi$ will be 0 (0 correct / 1 total). The utility score of $\pi_{\text{new}}$ will be:
 
-propensity of π_new for action_B \* (1 / propensity of π for action_B) / total recommendations = 0.60 \* (1 / 0.15) / 1 = 4
+$$
+\underbrace{0.60}_{\pi_{\text{new}}(a_B)} \cdot \frac{1}{\underbrace{0.15}_{\pi(a_B)}} \cdot \frac{1}{n} = 0.60 \cdot \frac{1}{0.15} \cdot \frac{1}{1} = 4
+$$
 
-Comparing the utilities, we observe the new policy π_new (utility=4) to be better than the production policy π (utility=0).
+Comparing the utilities, the new policy $\pi_{\text{new}}$ (utility $=4$) looks better than the production policy $\pi$ (utility $=0$).
 
 ------------------------------------------------------------------------
 
