@@ -83,45 +83,35 @@ I wrote proofs, shipped a production API, dispatched thousands of training jobs,
 
 
 
-<p>I started by asking a question: <strong>Why does Anthropic insist on XML tags?</strong> It sounded like a minor formatting preference. But as I dug into the engineering, it became clear that XML isn’t just “nice to use”—it is the <strong>statistical anchor</strong> Claude’s 175B+ parameters were built to recognize.</p>
+<p>I started with a small question: why does Anthropic insist on XML tags? It sounded like a formatting preference. The deeper I dug into the engineering, the more it looked like XML is less a style choice and more a statistical anchor the model’s parameters were trained to recognize. Here is the thread I pulled on.</p>
 <section id="the-xml-attention-fence" class="level3">
-<h3 class="anchored" data-anchor-id="the-xml-attention-fence"><strong>1. The XML “Attention Fence”</strong></h3>
-<p>Claude treats XML as its <a href="https://platform.claude.com">native interface</a> because of how its <strong>Self-Attention heads</strong> were trained.</p>
+<h3 class="anchored" data-anchor-id="the-xml-attention-fence">1. The XML “attention fence”</h3>
+<p>The reason XML reads like a native interface to Claude comes down to how its self-attention heads were trained.</p>
+<p>During pre-training, untrusted data gets wrapped in tags. That teaches the model to lower the weight it places on tokens inside something like <code>&lt;user_query&gt;</code> when it is predicting the next token for a system instruction. The tags end up acting as a structural fence, which is what keeps the model from mistaking your background data for a new command (sometimes called attention contamination).</p>
+</section>
+<section id="phase-1-supervised-fine-tuning-as-behavioral-cloning" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-supervised-fine-tuning-as-behavioral-cloning">2. Phase 1: supervised fine-tuning as behavioral cloning</h3>
+<p>This is the stage where the model learns the constitution, a rulebook of principles. It isn’t reasoning yet, it is mimicking.</p>
+<p>The loop: the model generates a response, critiques it against the constitution, revises it, and then gets trained to clone that revised version. The mechanism is cross-entropy loss. For every token, the model outputs a probability vector <img src="https://latex.codecogs.com/png.latex?P"> over its full vocabulary (on the order of 100k tokens). You compare <img src="https://latex.codecogs.com/png.latex?P"> against a one-hot ground-truth vector <img src="https://latex.codecogs.com/png.latex?Y">, which is all zeros except a <img src="https://latex.codecogs.com/png.latex?1"> at the correct token’s index:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BLoss%7D%20=%20-%5Csum_i%20Y_i%20%5Clog(P_i)%0A"></p>
+<p>If the model put 40% on “Hello” when the truth was <code>&lt;thinking&gt;</code> at 100%, backpropagation adjusts weights across the network to make <code>&lt;thinking&gt;</code> the statistically favored choice next time.</p>
+</section>
+<section id="phase-2-rlaif-and-ppo-the-optimization-stage" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-rlaif-and-ppo-the-optimization-stage">3. Phase 2: RLAIF and PPO, the optimization stage</h3>
+<p>Once the model knows <em>how</em> to speak, this phase teaches it judgment, using reinforcement learning from AI feedback. The PPO objective looks like:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BObjective%7D%20=%20%5Ctext%7BReward%7D%20-%20%5Cbeta%20%5Ccdot%20%5Cmathrm%7BKL%7D%5C!%5Cleft(%5Cpi_%7B%5Ctext%7Bnew%7D%7D%20%5C,%5C%7C%5C,%20%5Cpi_%7B%5Ctext%7Bold%7D%7D%5Cright)%0A"></p>
+<p>Three pieces worth pulling apart:</p>
 <ul>
-<li><strong>The Logic</strong>: During pre-training, Anthropic wrapped “untrusted” data in tags. This taught the model to mathematically lower the “weight” of tokens inside <code>&lt;user_query&gt;</code> when calculating the next token for a system instruction.</li>
-<li><strong>The Result</strong>: XML tags act as a structural fence, preventing <a href="https://arxiv.org">Attention Contamination</a> where the model might mistake your background data for a new command.</li>
+<li><strong>The reward.</strong> An AI judge model scores responses. Follow the constitution and use structure correctly, and the response earns a positive scalar; the logic that produced it gets reinforced.</li>
+<li><strong>The KL penalty.</strong> This is the part that matters. If the model tries to game the reward by drifting into gibberish the judge happens to like, the KL divergence term spikes and pulls it back toward the stable language model from Phase 1.</li>
+<li><strong>PPO clipping.</strong> Proximal Policy Optimization caps how far the weights can move per update, which prevents model collapse from a few outlier rewards.</li>
 </ul>
 </section>
-<section id="phase-1-supervised-fine-tuning-sft-behavioral-cloning" class="level3">
-<h3 class="anchored" data-anchor-id="phase-1-supervised-fine-tuning-sft-behavioral-cloning"><strong>2. Phase 1: Supervised Fine-Tuning (SFT) — Behavioral Cloning</strong></h3>
-<p>This is where the model learns the <a href="https://www.anthropic.com">Constitution</a>—a 60-point rulebook. It isn’t “thinking” yet; it is mimicking.</p>
-<ul>
-<li><strong>The Goal</strong>: The model generates a response, critiques it against the Constitution, and revises it. We then train the model to <strong>clone</strong> that perfect revision.</li>
-<li><strong>The Math (Cross-Entropy Loss)</strong>:</li>
-<li>For every word, the model generates a <strong>probability vector P</strong> the size of its unique vocabulary (~100k tokens).</li>
-<li>We compare <strong>P</strong> to the <strong>One-Hot Ground Truth Y</strong>—a vector of all zeros except for a <code>1</code> at the correct token’s index.</li>
-<li><strong>The Update</strong>: Using <strong>Loss = -Sum( Y * log(P) )</strong>, we measure the gap. If the model predicted “Hello” (40%) but the truth was <code>&lt;thinking&gt;</code> (100%), <a href="https://en.wikipedia.org">Backpropagation</a> adjusts the weights across the entire network to make <code>&lt;thinking&gt;</code> the statistically “correct” choice.</li>
-</ul>
-</section>
-<section id="phase-2-rlaif-ppo-the-optimization-stage" class="level3">
-<h3 class="anchored" data-anchor-id="phase-2-rlaif-ppo-the-optimization-stage"><strong>3. Phase 2: RLAIF &amp; PPO — The Optimization Stage</strong></h3>
-<p>Once the model knows <em>how</em> to speak, Phase 2 teaches it <em>judgment</em> using <a href="https://arxiv.org">Reinforcement Learning from AI Feedback (RLAIF)</a>.</p>
-<p><strong>The PPO Objective Function:</strong></p>
-<p><code>Objective = Reward - Beta * KL_Divergence(New_Model || Old_Model)</code></p>
-<ul>
-<li><strong>The Reward:</strong> An AI “Judge” model scores billions of responses. If Claude follows the Constitution and uses XML correctly, it gets a “Reward” (a positive scalar). The weights involved in that “winning” logic are reinforced.</li>
-<li><strong>The KL Penalty (The Anchor)</strong>: This is critical. If the model tries to “game” the reward by becoming a gibberish-machine that only says things the Judge likes, the <a href="https://en.wikipedia.org">KL Divergence</a> penalty spikes. It forces the model to stay “tethered” to the stable language base from Phase 1.</li>
-<li><strong>PPO Clipping</strong>: <a href="https://openai.com">Proximal Policy Optimization</a> ensures the weights only move by a tiny bit (usually 20%) per update, preventing “model collapse” from outlier feedback.</li>
-</ul>
-</section>
-<section id="scaling-the-100m-infrastructure" class="level3">
-<h3 class="anchored" data-anchor-id="scaling-the-100m-infrastructure"><strong>4. Scaling: The $100M+ Infrastructure</strong></h3>
-<ul>
-<li><strong>The Bottleneck</strong>: Traditional RLHF is limited by human reading speed (~200 wpm).</li>
-<li><strong>The Scaling</strong>: RLAIF runs at the speed of the <strong>H100 GPU cluster</strong>. Anthropic can simulate 100 years of “human judgment” in a weekend. The <a href="https://www.cnbc.com">massive cost</a> isn’t human labor—it’s the electricity and compute required to run these recursive self-improvement loops.</li>
-</ul>
+<section id="scaling-the-infrastructure-bill" class="level3">
+<h3 class="anchored" data-anchor-id="scaling-the-infrastructure-bill">4. Scaling: the infrastructure bill</h3>
+<p>Classic RLHF is bottlenecked by human reading speed. RLAIF removes the human from the inner loop, so the feedback runs at GPU-cluster speed instead. The cost isn’t labor at that point, it is the electricity and compute to run these self-improvement loops at scale.</p>
 <hr>
-<p><strong>The Takeaway</strong>: Using XML tags isn’t just about being “neat.” It is about aligning your prompt with the <strong>exact statistical patterns</strong> Claude’s weights were optimized to reward through millions of dollars of compute.</p>
+<p><strong>The takeaway.</strong> Using XML tags isn’t about being tidy. It is about lining your prompt up with the statistical patterns the model’s weights were optimized to reward in the first place.</p>
 
 
 </section>
@@ -255,45 +245,37 @@ I wrote proofs, shipped a production API, dispatched thousands of training jobs,
 
 
 
-<p>Hey there, folks! Billy here, back with another tale from the trenches of applied data science. Today, we’re tackling the beast known as the <strong>mass point</strong>—a pesky cluster of values that throws off our beloved linear regression, especially after a log transformation. Spoiler alert: it’s like having a party where everyone shows up in the same outfit, and the model just can’t decide if it’s a fashion statement or a malfunction!</p>
+<p>This one is about a failure mode I keep running into: a <strong>mass point</strong>, a large cluster of identical values in your data, quietly breaking linear regression. It often shows up right after a log transform, and the symptoms are easy to misread.</p>
 <hr>
-<section id="what-the-heck-is-a-mass-point" class="level3">
-<h3 class="anchored" data-anchor-id="what-the-heck-is-a-mass-point">What the Heck Is a Mass Point?</h3>
-<p>Imagine you have a dataset where a huge number of observations are identical—say, a whole crowd buying a $1 product. When you log-transform your sales (because we love making data “normal”), those $1’s all morph into a big, fat zero (since log(1) = 0). Now your data is suddenly dominated by a mass of zeros.</p>
-<p><strong>For the ones who prefer visuals: The “Mass Point” Party</strong></p>
-<ul>
-<li><strong>Left:</strong> A histogram of the original data showing a huge spike at T=1.</li>
-<li><strong>Right:</strong> The same data after log transformation, now with a towering spike at 0.<br>
-<em>(See Figure 1 below.)</em></li>
-</ul>
+<section id="what-a-mass-point-is" class="level3">
+<h3 class="anchored" data-anchor-id="what-a-mass-point-is">What a mass point is</h3>
+<p>Say a large number of your observations share the same value, for example a crowd of customers who all bought a $1 product. You log-transform sales to make the distribution more normal, and every one of those $1 values collapses to zero, since <img src="https://latex.codecogs.com/png.latex?%5Clog(1)%20=%200">. Now the transformed data is dominated by a spike of zeros.</p>
+<p>Visually: the original data has a tall spike at <img src="https://latex.codecogs.com/png.latex?T=1">, and after the log transform that spike moves to <img src="https://latex.codecogs.com/png.latex?0"> and gets taller relative to everything else.</p>
 <p><img src="https://bilguunbatsaikhan.com/images/2025/03/Screenshot-2025-03-27-at-15.41.21.png" class="img-fluid"></p>
 <hr>
 </section>
-<section id="why-linear-models-struggle-with-mass-points" class="level3">
-<h3 class="anchored" data-anchor-id="why-linear-models-struggle-with-mass-points">Why Linear Models Struggle with Mass Points</h3>
-<p>Linear regression relies on several key assumptions to produce reliable results:</p>
+<section id="why-linear-models-struggle-with-it" class="level3">
+<h3 class="anchored" data-anchor-id="why-linear-models-struggle-with-it">Why linear models struggle with it</h3>
+<p>Linear regression leans on a few assumptions:</p>
 <ol type="1">
-<li><strong>Linearity</strong>: The relationship between the independent variable(s) and the dependent variable is linear.</li>
-<li><strong>Independence of Errors</strong>: The residuals (errors) are independent of each other.</li>
-<li><strong>Homoscedasticity</strong>: The residuals have constant variance across all levels of the independent variable(s).</li>
-<li><strong>Normality</strong>: The residuals are approximately normally distributed.</li>
+<li><strong>Linearity</strong>: the relationship between predictors and outcome is linear.</li>
+<li><strong>Independence of errors</strong>: residuals are independent of each other.</li>
+<li><strong>Homoscedasticity</strong>: residuals have constant variance across all levels of the predictors.</li>
+<li><strong>Normality</strong>: residuals are roughly normally distributed.</li>
 </ol>
-<p>When a dataset contains a <strong>mass point</strong>—a large concentration of identical values—it can violate these assumptions, particularly affecting the normality and homoscedasticity of residuals (i.e.&nbsp;the prediction errors of the regression model have a constant variance/spread across all levels of the independent variables, rather than changing or forming patterns).</p>
-<p><strong>Example</strong>: Consider a dataset where a significant number of observations have the value T=1. Applying a logarithmic transformation (commonly used to normalize data) results in <img src="https://latex.codecogs.com/png.latex?%5Clog(1)%20=%200">, creating a spike at zero in the transformed data. This concentration can lead to:</p>
-<ol type="1">
-<li><strong>Non-Normal Residuals</strong>: The residuals may no longer follow a normal distribution due to the disproportionate influence of the mass point. For example, when a mass point exists, it can skew the residuals by <strong>introducing asymmetry</strong> or <strong>changing their spread</strong>, violating normality assumptions. Essentially, the mass point pulls the residuals toward itself, distorting their distribution instead of keeping them balanced and normally spread around zero.</li>
-<li><strong>Heteroscedasticity</strong>: The variance of residuals may not remain constant, as the model struggles to account for the density at the mass point compared to other values. Ensuring homoscedasticity is important because if the variance of residuals changes—especially due to a mass point—it means the model struggles to maintain consistent accuracy across different data ranges. This can result in <strong>biased standard errors (</strong>making hypothesis tests (e.g., t-tests) unreliable), <strong>inefficient estimates</strong> (meaning the model’s predictions might not be as precise as they could be) and <strong>misleading confidence intervals</strong> (which can lead to incorrect conclusions about the significance of variables).</li>
-</ol>
-<p>These issues can cause the linear model to produce biased or inefficient estimates, as it attempts to fit a linear relationship to data that doesn’t adhere to its foundational assumptions.</p>
-<p><strong>For the ones who prefer visuals: Regression vs.&nbsp;Mass Points</strong><br>
-A scatter plot of our log-transformed data with a linear regression line that awkwardly skirts around the massive cluster at 0 (our fitted model gets skewed/biased towards the point mass):</p>
+<p>A mass point mainly attacks the last two. With a big concentration of identical values (here, the spike at <img src="https://latex.codecogs.com/png.latex?%5Clog(1)%20=%200">), two things go wrong:</p>
+<ul>
+<li><strong>Non-normal residuals.</strong> The mass point pulls residuals toward itself, introducing asymmetry and distorting their spread, so they no longer sit balanced and normal around zero.</li>
+<li><strong>Heteroscedasticity.</strong> Residual variance stops being constant, because the model can’t fit the dense region and the sparse region equally well. That matters because non-constant variance gives you biased standard errors (so t-tests and confidence intervals become unreliable) and inefficient estimates (predictions are less precise than they could be).</li>
+</ul>
+<p>The net effect: the model tries to fit a straight line through data that violates its own assumptions, and you get biased or inefficient estimates. On a scatter plot you can see the fitted line bending awkwardly around the cluster at zero.</p>
 <p><img src="https://bilguunbatsaikhan.com/images/2025/03/Screenshot-2025-03-27-at-15.42.41.png" class="img-fluid"></p>
 <hr>
 </section>
-<section id="models-that-know-how-to-party" class="level3">
-<h3 class="anchored" data-anchor-id="models-that-know-how-to-party">Models That Know How to Party</h3>
-<p>When linear regression meets a mass point, it’s like inviting everyone to a black-tie event and having half the guests show up in the same neon T-shirt—it just doesn’t blend well. Instead, we can adopt alternative models that know how to handle these quirks and let our data have its own kind of party. Here are three possible solutions to fix the mass point problem (with their pros and cons):</p>
-<table>
+<section id="models-that-handle-it-better" class="level3">
+<h3 class="anchored" data-anchor-id="models-that-handle-it-better">Models that handle it better</h3>
+<p>Instead of forcing a single linear fit, use a model that explicitly accounts for the mass point. Three options, with tradeoffs:</p>
+<table class="caption-top table">
 <colgroup>
 <col style="width: 20%">
 <col style="width: 20%">
@@ -302,126 +284,60 @@ A scatter plot of our log-transformed data with a linear regression line that aw
 <col style="width: 20%">
 </colgroup>
 <thead>
-<tr>
-<th>
-<strong>Model Type</strong>
-</th>
-<th>
-<strong>Party Analogy (Key Idea)</strong>
-</th>
-<th>
-<strong>Pros</strong>
-</th>
-<th>
-<strong>Cons</strong>
-</th>
-<th>
-<strong>When to Use It</strong>
-</th>
+<tr class="header">
+<th>Model</th>
+<th>Key idea</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>When to use</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>
-<strong>Hurdle Model</strong>
-</td>
-<td>
-Think of a two-part party: a strict bouncer (classifier) decides who belongs to the “mass point club” (e.g., those all wearing the same neon T-shirt), and only guests not in that club join the VIP lounge (regression for continuous outcomes).
-</td>
-<td>
-<ul>
-<li>Clearly separates the party crashers from the regular guests<br></li>
-<li>Makes it easy to see who’s part of the mass point group and who isn’t
-</li></ul></td>
-<td>
-<ul>
-<li>Requires organizing two separate parts of the party<br></li>
-</ul>
-<li>More effort to coordinate both a bouncer and a VIP lounge
-</li></td>
-<td>
-When you have a mix of mass points (e.g., a lot of (T=1) or zeros) and continuous data.
-</td>
+<tr class="odd">
+<td><strong>Hurdle</strong></td>
+<td>A classifier first decides whether an observation is in the mass-point group; a separate regression models the continuous values for the rest.</td>
+<td>Cleanly separates the spike from the continuous part.</td>
+<td>Two models to fit and coordinate.</td>
+<td>A mix of a mass point (e.g.&nbsp;lots of <img src="https://latex.codecogs.com/png.latex?T=1"> or zeros) and continuous data.</td>
 </tr>
-<tr>
-<td>
-<strong>Mixture Model</strong>
-</td>
-<td>
-Imagine your party is a cocktail mix: one part is a strong shot (the mass point spike), and the other is a smooth latte (the continuous values). Both flavors are mixed to create the final drink.
-</td>
-<td>
-<ul>
-<li>Flexibly models a party with different types of guests<br></li>
-</ul>
-<li>Captures the overall vibe by blending distinct groups
-</li></td>
-<td>
-<ul>
-<li>Can be more complex to mix properly<br></li>
-</ul>
-<li>Finding the right blend of the shot and latte can be computationally challenging
-</li></td>
-<td>
-When your data naturally splits into distinct groups (a sharp spike mixed with a smooth distribution).
-</td>
+<tr class="even">
+<td><strong>Mixture</strong></td>
+<td>Model the data as a blend of two distributions: one for the spike, one for the smooth continuous part.</td>
+<td>Flexible, captures distinct subpopulations in one model.</td>
+<td>Harder to fit; estimating the mixture components can be unstable.</td>
+<td>Data that naturally splits into a sharp spike plus a smooth distribution.</td>
 </tr>
-<tr>
-<td>
-<strong>Zero-Inflated Model</strong>
-</td>
-<td>
-Picture a vending machine at your party that sometimes gives out a free snack (zero) by accident. The model first checks if you’re getting a freebie (logistic component) and then, if not, charges you the usual price (continuous model).
-</td>
-<td>
-<ul>
-<li>Specially designed for parties with too many free snacks (excess zeros)<br></li>
-</ul>
-<li>Better fits the scenario where zeros happen more often than expected
-</li></td>
-<td>
-<ul>
-<li>Best for situations with lots of free snacks (zeros)<br></li>
-</ul>
-<li>More complex to set up compared to a straightforward entry list
-</li></td>
-<td>
-When your data has an unusually high number of zeros (or a specific mass point) that needs special handling.
-</td>
+<tr class="odd">
+<td><strong>Zero-inflated</strong></td>
+<td>A logistic component models excess zeros; a continuous model handles the rest.</td>
+<td>Purpose-built for far more zeros than a standard model expects.</td>
+<td>Best only when the mass point really is at zero; more setup.</td>
+<td>An unusually high count of zeros (or one specific mass point).</td>
 </tr>
 </tbody>
 </table>
-
 <hr>
 </section>
-<section id="wrapping-it-all-up" class="level2">
-<h2 class="anchored" data-anchor-id="wrapping-it-all-up">Wrapping It All Up</h2>
-<p>When linear regression is forced to handle mass points, it’s like watching a classical dancer attempt breakdancing—awkward and off-beat. By adopting alternative approaches (hurdle, mixture, or zero-inflated models), we let the data express its natural quirks rather than forcing it into a mold it just doesn’t fit.</p>
-<p>Next time you see a giant spike at zero in your log-transformed data, remember: sometimes you need a bouncer, a cocktail mix, or even a vending machine model to keep the party (and the predictions) lively.</p>
-<p>Cheers, Billy!</p>
+<section id="takeaway" class="level3">
+<h3 class="anchored" data-anchor-id="takeaway">Takeaway</h3>
+<p>A giant spike at zero in log-transformed data is a signal, not noise to ignore. Linear regression will fit it, but the standard errors and efficiency you rely on quietly stop being trustworthy. A hurdle, mixture, or zero-inflated model fits the structure of the data instead of fighting it.</p>
 <hr>
 </section>
-<section id="appendix" class="level2">
-<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
-<section id="section" class="level4">
-<h4 class="anchored" data-anchor-id="section"><br>
-</h4>
-<p>Impact of Heteroscedasticity on Linear Regression:</p>
+<section id="appendix-why-heteroscedasticity-matters" class="level3">
+<h3 class="anchored" data-anchor-id="appendix-why-heteroscedasticity-matters">Appendix: why heteroscedasticity matters</h3>
+<p><strong>Effect on the estimates</strong></p>
 <ol type="1">
-<li><strong>Biased Standard Errors:</strong> When heteroscedasticity is present, the standard errors of the coefficient estimates become unreliable. This unreliability can lead to inaccurate confidence intervals and hypothesis tests, increasing the likelihood of Type I or Type II errors.</li>
-<li><strong>Inefficient Estimates:</strong> Although ordinary least squares (OLS) estimators remain unbiased in the presence of heteroscedasticity, they are no longer the best linear unbiased estimators (BLUE). This inefficiency means that the estimates have higher variance than necessary, making them less precise.</li>
+<li><strong>Biased standard errors.</strong> Under heteroscedasticity the standard errors of the coefficients are unreliable, which throws off confidence intervals and hypothesis tests and raises the chance of Type I or Type II errors.</li>
+<li><strong>Inefficient estimates.</strong> OLS stays unbiased, but it is no longer the best linear unbiased estimator (BLUE). The estimates have higher variance than necessary, so they are less precise.</li>
 </ol>
-</section>
-<section id="importance-of-efficiency-in-linear-regression" class="level4">
-<h4 class="anchored" data-anchor-id="importance-of-efficiency-in-linear-regression">Importance of Efficiency in Linear Regression</h4>
-<p>Efficiency in the context of linear regression refers to obtaining estimators with the smallest possible variance. Efficient estimators are desirable because:</p>
+<p><strong>Why efficiency is worth caring about</strong></p>
+<p>Efficiency means getting estimators with the smallest possible variance. It buys you two things:</p>
 <ol type="1">
-<li><strong>Precision:</strong> More efficient estimators provide tighter confidence intervals, enhancing the reliability of the estimates.</li>
-<li><strong>Statistical Power:</strong> With increased precision, statistical tests are more likely to detect true effects when they exist, reducing the risk of Type II errors.</li>
+<li><strong>Precision.</strong> Tighter confidence intervals, so the estimates are more reliable.</li>
+<li><strong>Statistical power.</strong> More precision means tests are likelier to detect real effects, lowering the risk of Type II errors.</li>
 </ol>
 
 
-</section>
 </section>
 
  ]]></description>
@@ -625,12 +541,12 @@ We can estimate the degree of units with close comparison units by defining an i
 <p>In short, since the logged rewards are produced by the current production model, we can debias them by using the inverse propensity weights of the production model.</p>
 <p>Let’s consider an example:</p>
 <ul>
-<li><img src="https://latex.codecogs.com/png.latex?x"> — contextual features</li>
-<li><img src="https://latex.codecogs.com/png.latex?a"> — action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: <img src="https://latex.codecogs.com/png.latex?a_A">, <img src="https://latex.codecogs.com/png.latex?a_B">, <img src="https://latex.codecogs.com/png.latex?a_C"></li>
-<li><img src="https://latex.codecogs.com/png.latex?%5Cpi"> — production policy. In this example, <img src="https://latex.codecogs.com/png.latex?%5Cpi">’s propensity scores for the 3 possible actions are <img src="https://latex.codecogs.com/png.latex?0.75">, <img src="https://latex.codecogs.com/png.latex?0.15">, and <img src="https://latex.codecogs.com/png.latex?0.10"></li>
-<li><img src="https://latex.codecogs.com/png.latex?%5Cpi_%7B%5Ctext%7Bnew%7D%7D"> — new policy. In this example, <img src="https://latex.codecogs.com/png.latex?%5Cpi_%7B%5Ctext%7Bnew%7D%7D">’s propensity scores for the 3 possible actions are <img src="https://latex.codecogs.com/png.latex?0.30">, <img src="https://latex.codecogs.com/png.latex?0.6">, <img src="https://latex.codecogs.com/png.latex?0.10"></li>
-<li><img src="https://latex.codecogs.com/png.latex?n"> — total number of samples</li>
-<li><img src="https://latex.codecogs.com/png.latex?r"> — reward from the action</li>
+<li><img src="https://latex.codecogs.com/png.latex?x"> is the contextual features</li>
+<li><img src="https://latex.codecogs.com/png.latex?a"> is the action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: <img src="https://latex.codecogs.com/png.latex?a_A">, <img src="https://latex.codecogs.com/png.latex?a_B">, <img src="https://latex.codecogs.com/png.latex?a_C"></li>
+<li><img src="https://latex.codecogs.com/png.latex?%5Cpi"> is the production policy. In this example, <img src="https://latex.codecogs.com/png.latex?%5Cpi">’s propensity scores for the 3 possible actions are <img src="https://latex.codecogs.com/png.latex?0.75">, <img src="https://latex.codecogs.com/png.latex?0.15">, and <img src="https://latex.codecogs.com/png.latex?0.10"></li>
+<li><img src="https://latex.codecogs.com/png.latex?%5Cpi_%7B%5Ctext%7Bnew%7D%7D"> is the new policy. In this example, <img src="https://latex.codecogs.com/png.latex?%5Cpi_%7B%5Ctext%7Bnew%7D%7D">’s propensity scores for the 3 possible actions are <img src="https://latex.codecogs.com/png.latex?0.30">, <img src="https://latex.codecogs.com/png.latex?0.6">, <img src="https://latex.codecogs.com/png.latex?0.10"></li>
+<li><img src="https://latex.codecogs.com/png.latex?n"> is the total number of samples</li>
+<li><img src="https://latex.codecogs.com/png.latex?r"> is the reward from the action</li>
 </ul>
 <p><strong>Case #1:</strong></p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Cpi"> recommends <img src="https://latex.codecogs.com/png.latex?a_A">, and the user likes the recommendation and clicks on it.</p>

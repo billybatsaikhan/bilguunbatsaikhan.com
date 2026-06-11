@@ -75,6 +75,49 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <script defer="" src="https://cloud.umami.is/script.js" data-website-id="09f84a6f-1bc7-4240-8034-d0aa9525c3e6"></script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <meta property="og:title" content="Going down a random rabbit hole: From XML Tags to $100M Weight Updates – Applied Data Science &amp; ML">
 <meta property="og:description" content="Why Anthropic leans on XML tags. Following the thread from prompt formatting down to how self-attention was trained.">
@@ -131,10 +174,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#the-xml-attention-fence" id="toc-the-xml-attention-fence" class="nav-link active" data-scroll-target="#the-xml-attention-fence"><strong>1. The XML “Attention Fence”</strong></a></li>
-  <li><a href="#phase-1-supervised-fine-tuning-sft-behavioral-cloning" id="toc-phase-1-supervised-fine-tuning-sft-behavioral-cloning" class="nav-link" data-scroll-target="#phase-1-supervised-fine-tuning-sft-behavioral-cloning"><strong>2. Phase 1: Supervised Fine-Tuning (SFT) — Behavioral Cloning</strong></a></li>
-  <li><a href="#phase-2-rlaif-ppo-the-optimization-stage" id="toc-phase-2-rlaif-ppo-the-optimization-stage" class="nav-link" data-scroll-target="#phase-2-rlaif-ppo-the-optimization-stage"><strong>3. Phase 2: RLAIF &amp; PPO — The Optimization Stage</strong></a></li>
-  <li><a href="#scaling-the-100m-infrastructure" id="toc-scaling-the-100m-infrastructure" class="nav-link" data-scroll-target="#scaling-the-100m-infrastructure"><strong>4. Scaling: The $100M+ Infrastructure</strong></a></li>
+  <li><a href="#the-xml-attention-fence" id="toc-the-xml-attention-fence" class="nav-link active" data-scroll-target="#the-xml-attention-fence">1. The XML “attention fence”</a></li>
+  <li><a href="#phase-1-supervised-fine-tuning-as-behavioral-cloning" id="toc-phase-1-supervised-fine-tuning-as-behavioral-cloning" class="nav-link" data-scroll-target="#phase-1-supervised-fine-tuning-as-behavioral-cloning">2. Phase 1: supervised fine-tuning as behavioral cloning</a></li>
+  <li><a href="#phase-2-rlaif-and-ppo-the-optimization-stage" id="toc-phase-2-rlaif-and-ppo-the-optimization-stage" class="nav-link" data-scroll-target="#phase-2-rlaif-and-ppo-the-optimization-stage">3. Phase 2: RLAIF and PPO, the optimization stage</a></li>
+  <li><a href="#scaling-the-infrastructure-bill" id="toc-scaling-the-infrastructure-bill" class="nav-link" data-scroll-target="#scaling-the-infrastructure-bill">4. Scaling: the infrastructure bill</a></li>
   </ul>
 </nav>
     </div>
@@ -171,45 +214,39 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>I started by asking a question: <strong>Why does Anthropic insist on XML tags?</strong> It sounded like a minor formatting preference. But as I dug into the engineering, it became clear that XML isn’t just “nice to use”—it is the <strong>statistical anchor</strong> Claude’s 175B+ parameters were built to recognize.</p>
+<p>I started with a small question: why does Anthropic insist on XML tags? It sounded like a formatting preference. The deeper I dug into the engineering, the more it looked like XML is less a style choice and more a statistical anchor the model’s parameters were trained to recognize. Here is the thread I pulled on.</p>
 <section id="the-xml-attention-fence" class="level3">
-<h3 class="anchored" data-anchor-id="the-xml-attention-fence"><strong>1. The XML “Attention Fence”</strong></h3>
-<p>Claude treats XML as its <a href="https://platform.claude.com">native interface</a> because of how its <strong>Self-Attention heads</strong> were trained.</p>
+<h3 class="anchored" data-anchor-id="the-xml-attention-fence">1. The XML “attention fence”</h3>
+<p>The reason XML reads like a native interface to Claude comes down to how its self-attention heads were trained.</p>
+<p>During pre-training, untrusted data gets wrapped in tags. That teaches the model to lower the weight it places on tokens inside something like <code>&lt;user_query&gt;</code> when it is predicting the next token for a system instruction. The tags end up acting as a structural fence, which is what keeps the model from mistaking your background data for a new command (sometimes called attention contamination).</p>
+</section>
+<section id="phase-1-supervised-fine-tuning-as-behavioral-cloning" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-supervised-fine-tuning-as-behavioral-cloning">2. Phase 1: supervised fine-tuning as behavioral cloning</h3>
+<p>This is the stage where the model learns the constitution, a rulebook of principles. It isn’t reasoning yet, it is mimicking.</p>
+<p>The loop: the model generates a response, critiques it against the constitution, revises it, and then gets trained to clone that revised version. The mechanism is cross-entropy loss. For every token, the model outputs a probability vector <span class="math inline">P</span> over its full vocabulary (on the order of 100k tokens). You compare <span class="math inline">P</span> against a one-hot ground-truth vector <span class="math inline">Y</span>, which is all zeros except a <span class="math inline">1</span> at the correct token’s index:</p>
+<p><span class="math display">
+\text{Loss} = -\sum_i Y_i \log(P_i)
+</span></p>
+<p>If the model put 40% on “Hello” when the truth was <code>&lt;thinking&gt;</code> at 100%, backpropagation adjusts weights across the network to make <code>&lt;thinking&gt;</code> the statistically favored choice next time.</p>
+</section>
+<section id="phase-2-rlaif-and-ppo-the-optimization-stage" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-rlaif-and-ppo-the-optimization-stage">3. Phase 2: RLAIF and PPO, the optimization stage</h3>
+<p>Once the model knows <em>how</em> to speak, this phase teaches it judgment, using reinforcement learning from AI feedback. The PPO objective looks like:</p>
+<p><span class="math display">
+\text{Objective} = \text{Reward} - \beta \cdot \mathrm{KL}\!\left(\pi_{\text{new}} \,\|\, \pi_{\text{old}}\right)
+</span></p>
+<p>Three pieces worth pulling apart:</p>
 <ul>
-<li><strong>The Logic</strong>: During pre-training, Anthropic wrapped “untrusted” data in tags. This taught the model to mathematically lower the “weight” of tokens inside <code>&lt;user_query&gt;</code> when calculating the next token for a system instruction.</li>
-<li><strong>The Result</strong>: XML tags act as a structural fence, preventing <a href="https://arxiv.org">Attention Contamination</a> where the model might mistake your background data for a new command.</li>
+<li><strong>The reward.</strong> An AI judge model scores responses. Follow the constitution and use structure correctly, and the response earns a positive scalar; the logic that produced it gets reinforced.</li>
+<li><strong>The KL penalty.</strong> This is the part that matters. If the model tries to game the reward by drifting into gibberish the judge happens to like, the KL divergence term spikes and pulls it back toward the stable language model from Phase 1.</li>
+<li><strong>PPO clipping.</strong> Proximal Policy Optimization caps how far the weights can move per update, which prevents model collapse from a few outlier rewards.</li>
 </ul>
 </section>
-<section id="phase-1-supervised-fine-tuning-sft-behavioral-cloning" class="level3">
-<h3 class="anchored" data-anchor-id="phase-1-supervised-fine-tuning-sft-behavioral-cloning"><strong>2. Phase 1: Supervised Fine-Tuning (SFT) — Behavioral Cloning</strong></h3>
-<p>This is where the model learns the <a href="https://www.anthropic.com">Constitution</a>—a 60-point rulebook. It isn’t “thinking” yet; it is mimicking.</p>
-<ul>
-<li><strong>The Goal</strong>: The model generates a response, critiques it against the Constitution, and revises it. We then train the model to <strong>clone</strong> that perfect revision.</li>
-<li><strong>The Math (Cross-Entropy Loss)</strong>:</li>
-<li>For every word, the model generates a <strong>probability vector P</strong> the size of its unique vocabulary (~100k tokens).</li>
-<li>We compare <strong>P</strong> to the <strong>One-Hot Ground Truth Y</strong>—a vector of all zeros except for a <code>1</code> at the correct token’s index.</li>
-<li><strong>The Update</strong>: Using <strong>Loss = -Sum( Y * log(P) )</strong>, we measure the gap. If the model predicted “Hello” (40%) but the truth was <code>&lt;thinking&gt;</code> (100%), <a href="https://en.wikipedia.org">Backpropagation</a> adjusts the weights across the entire network to make <code>&lt;thinking&gt;</code> the statistically “correct” choice.</li>
-</ul>
-</section>
-<section id="phase-2-rlaif-ppo-the-optimization-stage" class="level3">
-<h3 class="anchored" data-anchor-id="phase-2-rlaif-ppo-the-optimization-stage"><strong>3. Phase 2: RLAIF &amp; PPO — The Optimization Stage</strong></h3>
-<p>Once the model knows <em>how</em> to speak, Phase 2 teaches it <em>judgment</em> using <a href="https://arxiv.org">Reinforcement Learning from AI Feedback (RLAIF)</a>.</p>
-<p><strong>The PPO Objective Function:</strong></p>
-<p><code>Objective = Reward - Beta * KL_Divergence(New_Model || Old_Model)</code></p>
-<ul>
-<li><strong>The Reward:</strong> An AI “Judge” model scores billions of responses. If Claude follows the Constitution and uses XML correctly, it gets a “Reward” (a positive scalar). The weights involved in that “winning” logic are reinforced.</li>
-<li><strong>The KL Penalty (The Anchor)</strong>: This is critical. If the model tries to “game” the reward by becoming a gibberish-machine that only says things the Judge likes, the <a href="https://en.wikipedia.org">KL Divergence</a> penalty spikes. It forces the model to stay “tethered” to the stable language base from Phase 1.</li>
-<li><strong>PPO Clipping</strong>: <a href="https://openai.com">Proximal Policy Optimization</a> ensures the weights only move by a tiny bit (usually 20%) per update, preventing “model collapse” from outlier feedback.</li>
-</ul>
-</section>
-<section id="scaling-the-100m-infrastructure" class="level3">
-<h3 class="anchored" data-anchor-id="scaling-the-100m-infrastructure"><strong>4. Scaling: The $100M+ Infrastructure</strong></h3>
-<ul>
-<li><strong>The Bottleneck</strong>: Traditional RLHF is limited by human reading speed (~200 wpm).</li>
-<li><strong>The Scaling</strong>: RLAIF runs at the speed of the <strong>H100 GPU cluster</strong>. Anthropic can simulate 100 years of “human judgment” in a weekend. The <a href="https://www.cnbc.com">massive cost</a> isn’t human labor—it’s the electricity and compute required to run these recursive self-improvement loops.</li>
-</ul>
+<section id="scaling-the-infrastructure-bill" class="level3">
+<h3 class="anchored" data-anchor-id="scaling-the-infrastructure-bill">4. Scaling: the infrastructure bill</h3>
+<p>Classic RLHF is bottlenecked by human reading speed. RLAIF removes the human from the inner loop, so the feedback runs at GPU-cluster speed instead. The cost isn’t labor at that point, it is the electricity and compute to run these self-improvement loops at scale.</p>
 <hr>
-<p><strong>The Takeaway</strong>: Using XML tags isn’t just about being “neat.” It is about aligning your prompt with the <strong>exact statistical patterns</strong> Claude’s weights were optimized to reward through millions of dollars of compute.</p>
+<p><strong>The takeaway.</strong> Using XML tags isn’t about being tidy. It is about lining your prompt up with the statistical patterns the model’s weights were optimized to reward in the first place.</p>
 
 
 </section>

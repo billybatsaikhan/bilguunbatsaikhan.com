@@ -247,12 +247,12 @@ window.Quarto = {
 <p>In short, since the logged rewards are produced by the current production model, we can debias them by using the inverse propensity weights of the production model.</p>
 <p>Let’s consider an example:</p>
 <ul>
-<li><span class="math inline">x</span> — contextual features</li>
-<li><span class="math inline">a</span> — action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: <span class="math inline">a_A</span>, <span class="math inline">a_B</span>, <span class="math inline">a_C</span></li>
-<li><span class="math inline">\pi</span> — production policy. In this example, <span class="math inline">\pi</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.75</span>, <span class="math inline">0.15</span>, and <span class="math inline">0.10</span></li>
-<li><span class="math inline">\pi_{\text{new}}</span> — new policy. In this example, <span class="math inline">\pi_{\text{new}}</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.30</span>, <span class="math inline">0.6</span>, <span class="math inline">0.10</span></li>
-<li><span class="math inline">n</span> — total number of samples</li>
-<li><span class="math inline">r</span> — reward from the action</li>
+<li><span class="math inline">x</span> is the contextual features</li>
+<li><span class="math inline">a</span> is the action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: <span class="math inline">a_A</span>, <span class="math inline">a_B</span>, <span class="math inline">a_C</span></li>
+<li><span class="math inline">\pi</span> is the production policy. In this example, <span class="math inline">\pi</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.75</span>, <span class="math inline">0.15</span>, and <span class="math inline">0.10</span></li>
+<li><span class="math inline">\pi_{\text{new}}</span> is the new policy. In this example, <span class="math inline">\pi_{\text{new}}</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.30</span>, <span class="math inline">0.6</span>, <span class="math inline">0.10</span></li>
+<li><span class="math inline">n</span> is the total number of samples</li>
+<li><span class="math inline">r</span> is the reward from the action</li>
 </ul>
 <p><strong>Case #1:</strong></p>
 <p><span class="math inline">\pi</span> recommends <span class="math inline">a_A</span>, and the user likes the recommendation and clicks on it.</p>
