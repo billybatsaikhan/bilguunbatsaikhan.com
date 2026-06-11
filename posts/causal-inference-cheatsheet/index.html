@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2024-01-15">
+<meta name="description" content="A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure’s Causal Inference for the Brave and True.">
 
 <title>Causal Inference cheatsheet – Applied Data Science &amp; ML</title>
 <style>
@@ -75,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <meta property="og:title" content="Causal Inference cheatsheet – Applied Data Science &amp; ML">
-<meta property="og:description" content="Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science &amp; ML.">
+<meta property="og:description" content="A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure’s Causal Inference for the Brave and True.">
 <meta property="og:site_name" content="Applied Data Science &amp; ML">
 </head>
 
@@ -125,10 +126,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview-of-causal-inference-concepts" id="toc-overview-of-causal-inference-concepts" class="nav-link active" data-scroll-target="#overview-of-causal-inference-concepts">Overview of Causal Inference Concepts</a></li>
-  <li><a href="#key-assumptions" id="toc-key-assumptions" class="nav-link" data-scroll-target="#key-assumptions">Key Assumptions</a></li>
-  <li><a href="#important-methods" id="toc-important-methods" class="nav-link" data-scroll-target="#important-methods">Important Methods</a></li>
-  <li><a href="#practical-implementation-tips" id="toc-practical-implementation-tips" class="nav-link" data-scroll-target="#practical-implementation-tips">Practical Implementation Tips</a></li>
+  <li><a href="#core-concepts" id="toc-core-concepts" class="nav-link active" data-scroll-target="#core-concepts">Core concepts</a></li>
+  <li><a href="#the-assumptions-that-actually-bite" id="toc-the-assumptions-that-actually-bite" class="nav-link" data-scroll-target="#the-assumptions-that-actually-bite">The assumptions that actually bite</a></li>
+  <li><a href="#picking-a-method-the-one-thing-that-matters-for-each" id="toc-picking-a-method-the-one-thing-that-matters-for-each" class="nav-link" data-scroll-target="#picking-a-method-the-one-thing-that-matters-for-each">Picking a method: the one thing that matters for each</a></li>
+  <li><a href="#things-ive-learned-to-check-before-trusting-a-result" id="toc-things-ive-learned-to-check-before-trusting-a-result" class="nav-link" data-scroll-target="#things-ive-learned-to-check-before-trusting-a-result">Things I’ve learned to check before trusting a result</a></li>
   </ul>
 </nav>
     </div>
@@ -144,6 +145,11 @@ ul.task-list li input[type="checkbox"] {
   </div>
   </div>
 
+<div>
+  <div class="description">
+    A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure’s Causal Inference for the Brave and True.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -164,239 +170,219 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Causal Inference cheatsheet based on Matheus Facure’s <a href="https://matheusfacure.github.io/python-causality-handbook">book on Causal Inference</a>. Created by ChatGPT.</p>
-<section id="overview-of-causal-inference-concepts" class="level3">
-<h3 class="anchored" data-anchor-id="overview-of-causal-inference-concepts">Overview of Causal Inference Concepts</h3>
+<p>I keep forgetting which method assumes what, so I put together a single page I can scan before reaching for a technique. It follows the terminology in Matheus Facure’s <a href="https://matheusfacure.github.io/python-causality-handbook">Causal Inference for the Brave and True</a>, which is the resource I keep coming back to.</p>
+<p>It is not exhaustive, and it is not a substitute for reading the book. It is the thing I glance at to remember what “regression discontinuity” actually buys me before I commit to it.</p>
+<section id="core-concepts" class="level3">
+<h3 class="anchored" data-anchor-id="core-concepts">Core concepts</h3>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
 <thead>
 <tr class="header">
-<th><strong>Concept</strong></th>
-<th><strong>Description</strong></th>
-<th><strong>Example</strong></th>
-<th><strong>Reference</strong></th>
+<th>Concept</th>
+<th>What it means</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><strong>Causal Inference</strong></td>
 <td>Determining the cause-and-effect relationship between variables.</td>
-<td>Assessing the impact of a new drug on patient recovery.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>The impact of a new drug on patient recovery.</td>
 </tr>
 <tr class="even">
-<td><strong>Treatment/Intervention</strong></td>
+<td><strong>Treatment / Intervention</strong></td>
 <td>The variable or action being studied for its effect on an outcome.</td>
 <td>A new teaching method.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
 </tr>
 <tr class="odd">
 <td><strong>Outcome</strong></td>
-<td>The variable or result that is influenced by the treatment/intervention.</td>
+<td>The variable that is influenced by the treatment.</td>
 <td>Student test scores.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
 </tr>
 <tr class="even">
 <td><strong>Confounder</strong></td>
-<td>A variable that influences both the treatment and the outcome, potentially biasing the estimated effect.</td>
+<td>A variable that influences both the treatment and the outcome, biasing the estimated effect.</td>
 <td>Age in a study linking exercise to heart health.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
 </tr>
 <tr class="odd">
 <td><strong>Randomized Controlled Trial (RCT)</strong></td>
-<td>Participants are randomly assigned to treatment or control groups to ensure comparability.</td>
-<td>Testing a new medication by randomly assigning patients to receive either the medication or a placebo.</td>
-<td><a href="https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html" rel="noreferrer" target="_new">Link</a></td>
+<td>Units are randomly assigned to treatment or control to ensure comparability. See <a href="https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html">the chapter</a>.</td>
+<td>Randomly assigning patients to a drug or a placebo.</td>
 </tr>
 <tr class="even">
 <td><strong>Observational Study</strong></td>
-<td>The researcher observes the effect of treatments without random assignment.</td>
-<td>Studying the effect of smoking on lung cancer through observational data.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>You observe the effect of treatments without controlling assignment.</td>
+<td>Smoking and lung cancer, studied from existing data.</td>
 </tr>
 <tr class="odd">
 <td><strong>Counterfactual</strong></td>
-<td>The hypothetical scenario of what would have happened to the same units under a different treatment condition.</td>
-<td>What would be the unemployment rate if a stimulus package had not been implemented?</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>What would have happened to the same units under a different treatment.</td>
+<td>The unemployment rate had the stimulus not passed.</td>
 </tr>
 <tr class="even">
 <td><strong>Selection Bias</strong></td>
-<td>Bias introduced when the subjects studied are not representative of the general population.</td>
-<td>Studying only healthy volunteers for a new drug might overestimate its effectiveness.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>Bias from studying subjects who are not representative of the population.</td>
+<td>Only healthy volunteers enroll, inflating the drug’s apparent effect.</td>
 </tr>
 <tr class="odd">
 <td><strong>Instrumental Variables (IV)</strong></td>
-<td>Variables that affect the treatment but do not directly affect the outcome, used to estimate causal relationships when controlled experiments are not feasible.</td>
-<td>Using distance to the nearest college as an instrument for education level in earnings studies.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>A variable that affects treatment but only touches the outcome through it.</td>
+<td>Distance to the nearest college as an instrument for education.</td>
 </tr>
 <tr class="even">
 <td><strong>Difference-in-Differences (DiD)</strong></td>
-<td>Compares the changes in outcomes over time between a treatment group and a control group.</td>
-<td>Evaluating the impact of a new law by comparing regions before and after the law is implemented.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>Compare outcome changes over time between a treatment and a control group.</td>
+<td>A new law’s effect, comparing regions before and after.</td>
 </tr>
 <tr class="odd">
 <td><strong>Regression Discontinuity (RD)</strong></td>
-<td>Uses a cutoff or threshold to assign treatment and compares those just above and below the cutoff to estimate causal effects.</td>
-<td>Estimating the effect of a scholarship program on student performance by comparing students around the eligibility cutoff.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>Use a cutoff to assign treatment, compare units just above and below it.</td>
+<td>A scholarship’s effect, comparing students around the eligibility line.</td>
 </tr>
 <tr class="even">
 <td><strong>Propensity Score Matching</strong></td>
-<td>Matches treated and untreated units with similar propensity scores (the probability of receiving the treatment) to estimate the treatment effect.</td>
-<td>Comparing outcomes of patients receiving different treatments by matching on demographic and clinical characteristics.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>Match treated and untreated units with similar probability of being treated.</td>
+<td>Matching patients on demographics and clinical history before comparing.</td>
 </tr>
 <tr class="odd">
-<td><strong>Synthetic Control Method</strong></td>
-<td>Constructs a weighted combination of control units to create a synthetic control group for comparison with the treated unit.</td>
-<td>Evaluating the impact of a policy change in one country by comparing it to a synthetic control group constructed from other countries.</td>
-<td><a href="https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html" rel="noreferrer" target="_new">Link</a></td>
+<td><strong>Synthetic Control</strong></td>
+<td>Build a weighted blend of control units to stand in for the treated one. See <a href="https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html">the chapter</a>.</td>
+<td>A policy’s effect in one country vs a synthetic of several others.</td>
 </tr>
 <tr class="even">
 <td><strong>Mediation Analysis</strong></td>
-<td>Examines how an intermediate variable mediates the relationship between an independent variable and a dependent variable.</td>
-<td>Analyzing how stress reduction mediates the relationship between exercise and mental health.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>How an intermediate variable carries the effect from cause to outcome.</td>
+<td>Stress reduction mediating exercise and mental health.</td>
 </tr>
 <tr class="odd">
 <td><strong>Natural Experiment</strong></td>
-<td>Uses naturally occurring events or circumstances that mimic random assignment to estimate causal effects.</td>
-<td>Studying the impact of a natural disaster on economic outcomes.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>A real-world event that mimics random assignment.</td>
+<td>A natural disaster’s effect on economic outcomes.</td>
 </tr>
 <tr class="even">
 <td><strong>Heterogeneous Treatment Effects</strong></td>
-<td>Analysis that examines how treatment effects vary across different subgroups or contexts.</td>
-<td>Investigating whether a job training program has different effects based on participants’ age or education level.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>How the effect varies across subgroups.</td>
+<td>Whether a job-training program helps differently by age or education.</td>
 </tr>
 <tr class="odd">
 <td><strong>Panel Data and Fixed Effects</strong></td>
-<td>Uses data collected over time on the same units to control for unobserved variables that do not change over time.</td>
-<td>Evaluating the impact of education policies by analyzing student performance data over multiple years.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td>Repeated observations on the same units to absorb time-invariant confounders.</td>
+<td>Education policy, tracked across years of student data.</td>
 </tr>
 <tr class="even">
-<td><strong>Synthetic Difference-in-Differences (SDID)</strong></td>
-<td>Combines synthetic control and difference-in-differences methods to estimate treatment effects.</td>
-<td>Evaluating the impact of a new law by comparing the treated region to a synthetic control region over time.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td><strong>Synthetic DiD (SDID)</strong></td>
+<td>Combines synthetic control and DiD.</td>
+<td>A law’s effect, treated region vs synthetic control over time.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="key-assumptions" class="level3">
-<h3 class="anchored" data-anchor-id="key-assumptions">Key Assumptions</h3>
+<section id="the-assumptions-that-actually-bite" class="level3">
+<h3 class="anchored" data-anchor-id="the-assumptions-that-actually-bite">The assumptions that actually bite</h3>
+<p>Most causal estimates fall apart not in the math but in one of these three. They are usually untestable, which is exactly why they are worth writing down.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th><strong>Assumption</strong></th>
-<th><strong>Description</strong></th>
-<th><strong>Example</strong></th>
-<th><strong>Reference</strong></th>
+<th>Assumption</th>
+<th>What it means</th>
+<th>Where it breaks</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Ignorability/Exchangeability</strong></td>
-<td>Given a set of observed covariates, the potential outcomes are independent of the treatment assignment.</td>
-<td>Assuming no unmeasured confounders in a study linking diet to heart disease.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td><strong>Ignorability / Exchangeability</strong></td>
+<td>Conditional on observed covariates, treatment is as good as random.</td>
+<td>An unmeasured confounder you never recorded.</td>
 </tr>
 <tr class="even">
-<td><strong>Stable Unit Treatment Value Assumption (SUTVA)</strong></td>
-<td>There are no interference effects between units, and each unit has a single version of treatment.</td>
-<td>One person’s vaccination does not directly affect another’s health outcome in the study.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td><strong>SUTVA</strong></td>
+<td>No interference between units, one version of treatment.</td>
+<td>One person’s vaccination affecting another’s outcome.</td>
 </tr>
 <tr class="odd">
-<td><strong>Common Support/Overlap</strong></td>
-<td>There is a sufficient overlap in covariate distributions between the treatment and control groups to make comparisons possible.</td>
-<td>In a study comparing different teaching methods, students in all groups have similar background characteristics.</td>
-<td><span rel="noreferrer" target="_new">Link</span></td>
+<td><strong>Common Support / Overlap</strong></td>
+<td>Treatment and control overlap in covariate space.</td>
+<td>A region where only treated units exist, forcing extrapolation.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="important-methods" class="level3">
-<h3 class="anchored" data-anchor-id="important-methods">Important Methods</h3>
-<p><strong>Randomized Controlled Trials (RCTs)</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Establish causal relationships by randomly assigning treatment.</li>
-<li><strong>Example</strong>: Testing the effectiveness of a new drug.</li>
-<li><strong>Key Point</strong>: Randomization ensures comparability between treatment and control groups.</li>
-</ul>
-<p><strong>Instrumental Variables (IV)</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Estimate causal relationships when controlled experiments are not feasible.</li>
-<li><strong>Example</strong>: Using proximity to a college as an instrument for education in earnings studies.</li>
-<li><strong>Key Point</strong>: The instrument affects the outcome only through the treatment.</li>
-</ul>
-<p><strong>Difference-in-Differences (DiD)</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Compare changes in outcomes over time between a treatment group and a control group.</li>
-<li><strong>Example</strong>: Evaluating the impact of a policy change by comparing regions before and after the policy implementation.</li>
-<li><strong>Key Point</strong>: Assumes parallel trends between the treatment and control groups before the intervention.</li>
-</ul>
-<p><strong>Regression Discontinuity (RD)</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Estimate causal effects using a cutoff or threshold for treatment assignment.</li>
-<li><strong>Example</strong>: Assessing the effect of a scholarship program by comparing students just above and below the eligibility cutoff.</li>
-<li><strong>Key Point</strong>: Compares observations just above and below the threshold.</li>
-</ul>
-<p><strong>Propensity Score Matching</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Estimate treatment effects by matching treated and untreated units with similar propensity scores.</li>
-<li><strong>Example</strong>: Comparing outcomes of patients receiving different treatments by matching on demographic and clinical characteristics.</li>
-<li><strong>Key Point</strong>: Reduces bias by ensuring comparable groups.</li>
-</ul>
-<p><strong>Synthetic Control Method</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Create a synthetic control group for comparison with the treated unit.</li>
-<li><strong>Example</strong>: Evaluating the impact of a policy change by comparing it to a synthetic control group constructed from other regions or countries.</li>
-<li><strong>Key Point</strong>: Constructs a weighted combination of control units to match the treated unit.</li>
-</ul>
-<p><strong>Mediation Analysis</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Examine how an intermediate variable mediates the relationship between an independent variable and a dependent variable.</li>
-<li><strong>Example</strong>: Analyzing how stress reduction mediates the relationship between exercise and mental health.</li>
-<li><strong>Key Point</strong>: Identifies pathways through which the treatment affects the outcome.</li>
-</ul>
-<p><strong>Panel Data and Fixed Effects</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Control for unobserved variables that do not change over time by using data collected over multiple time periods.</li>
-<li><strong>Example</strong>: Evaluating the impact of education policies by analyzing student performance data over multiple years.</li>
-<li><strong>Key Point</strong>: Removes bias from time-invariant unobserved variables.</li>
-</ul>
-<p><strong>Synthetic Difference-in-Differences (SDID)</strong></p>
-<ul>
-<li><strong>Purpose</strong>: Combine synthetic control and difference-in-differences methods to estimate treatment effects.</li>
-<li><strong>Example</strong>: Evaluating the impact of a new law by comparing the treated region to a synthetic control region over time.</li>
-<li><strong>Key Point</strong>: Integrates the strengths of both methods for more robust causal inference.</li>
-</ul>
+<section id="picking-a-method-the-one-thing-that-matters-for-each" class="level3">
+<h3 class="anchored" data-anchor-id="picking-a-method-the-one-thing-that-matters-for-each">Picking a method: the one thing that matters for each</h3>
+<p>When I reach for one of these, the question is never “what does it do” but “what does it need to be true.” Here is the load-bearing assumption behind each, the thing that, if violated, quietly makes the estimate wrong.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Use it when</th>
+<th>The assumption it lives or dies on</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>RCT</strong></td>
+<td>You can assign treatment yourself.</td>
+<td>Randomization actually happened (no broken blinding, no attrition).</td>
+</tr>
+<tr class="even">
+<td><strong>IV</strong></td>
+<td>Treatment is confounded but you have a clean instrument.</td>
+<td>The instrument touches the outcome <em>only</em> through treatment. One alternate path kills it.</td>
+</tr>
+<tr class="odd">
+<td><strong>DiD</strong></td>
+<td>You have before/after data for a treated and a control group.</td>
+<td>Parallel trends: the two groups would have moved together absent treatment.</td>
+</tr>
+<tr class="even">
+<td><strong>RD</strong></td>
+<td>Treatment flips at a sharp threshold.</td>
+<td>Units can’t precisely manipulate which side of the cutoff they land on.</td>
+</tr>
+<tr class="odd">
+<td><strong>Propensity Score Matching</strong></td>
+<td>Selection is on observables you measured.</td>
+<td>You actually observed the confounders. It can’t fix unobserved ones.</td>
+</tr>
+<tr class="even">
+<td><strong>Synthetic Control</strong></td>
+<td>One treated unit, many candidate controls, long pre-period.</td>
+<td>The synthetic blend tracks the treated unit well <em>before</em> treatment.</td>
+</tr>
+<tr class="odd">
+<td><strong>Mediation</strong></td>
+<td>You want the pathway, not just the total effect.</td>
+<td>No unmeasured confounding of the mediator-outcome link (the part people forget).</td>
+</tr>
+<tr class="even">
+<td><strong>Panel / Fixed Effects</strong></td>
+<td>Repeated measures, confounders that don’t change over time.</td>
+<td>The confounders really are time-invariant.</td>
+</tr>
+<tr class="odd">
+<td><strong>SDID</strong></td>
+<td>DiD’s parallel-trends looks shaky and you have a panel.</td>
+<td>A weaker, reweighted version of parallel trends still holds.</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="practical-implementation-tips" class="level3">
-<h3 class="anchored" data-anchor-id="practical-implementation-tips">Practical Implementation Tips</h3>
+<section id="things-ive-learned-to-check-before-trusting-a-result" class="level3">
+<h3 class="anchored" data-anchor-id="things-ive-learned-to-check-before-trusting-a-result">Things I’ve learned to check before trusting a result</h3>
 <ul>
-<li><strong>Data Quality</strong>: Ensure high-quality, accurate, and relevant data.</li>
-<li><strong>Model Validation</strong>: Validate models using out-of-sample tests and robustness checks.</li>
-<li><strong>Assumption Testing</strong>: Test key assumptions such as common support and no interference between units.</li>
-<li><strong>Sensitivity Analysis</strong>: Conduct sensitivity analyses to check the robustness of the results to different assumptions and specifications.</li>
+<li>Plot the overlap. If treated and control don’t share covariate space, the model is extrapolating and nobody told you.</li>
+<li>Stress the key assumption, not the data. More features won’t save a design whose identification is broken.</li>
+<li>Run a sensitivity analysis. “How big would an unobserved confounder have to be to flip this?” is often more honest than the point estimate.</li>
+<li>Be suspicious of a clean answer from messy observational data. It usually means an assumption is doing more work than you realize.</li>
 </ul>
 
 
