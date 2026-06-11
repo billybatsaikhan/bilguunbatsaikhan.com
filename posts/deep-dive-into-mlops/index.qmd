@@ -1,8 +1,8 @@
 ---
 title: "Deep dive into MLOps."
 date: "2021-05-14"
+description: "What happens after the ML proof-of-concept: the deployment patterns, tradeoffs, and failure modes of putting a model into production."
 categories: ["mlops"]
-description: "Proof Of Concept (POC) is one of the key phases in Machine Learning (ML)-related projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot."
 ---
 
 ### Motivation

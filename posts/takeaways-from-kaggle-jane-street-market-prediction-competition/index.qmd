@@ -1,6 +1,7 @@
 ---
 title: "Takeaways from Kaggle's \"Jane Street Market Prediction\" competition"
 date: "2021-03-13"
+description: "What I took away from Kaggle's Jane Street Market Prediction competition: cross-validation, Keras tuning, and fast inference tricks."
 categories: ["kaggle", "tips and tricks"]
 ---
 

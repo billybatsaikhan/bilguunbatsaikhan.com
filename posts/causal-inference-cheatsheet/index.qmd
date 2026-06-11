@@ -1,101 +1,66 @@
 ---
 title: "Causal Inference cheatsheet"
 date: "2024-01-15"
+description: "A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure's Causal Inference for the Brave and True."
 categories: ["CausalInference", "Cheatsheet"]
 ---
 
-Causal Inference cheatsheet based on Matheus Facure's [book on Causal Inference](https://matheusfacure.github.io/python-causality-handbook). Created by ChatGPT.
+I keep forgetting which method assumes what, so I put together a single page I can scan before reaching for a technique. It follows the terminology in Matheus Facure's [Causal Inference for the Brave and True](https://matheusfacure.github.io/python-causality-handbook), which is the resource I keep coming back to.
 
-### Overview of Causal Inference Concepts
+It is not exhaustive, and it is not a substitute for reading the book. It is the thing I glance at to remember what "regression discontinuity" actually buys me before I commit to it.
 
-| **Concept** | **Description** | **Example** | **Reference** |
-|----|----|----|----|
-| **Causal Inference** | Determining the cause-and-effect relationship between variables. | Assessing the impact of a new drug on patient recovery. | <span rel="noreferrer" target="_new">Link</span> |
-| **Treatment/Intervention** | The variable or action being studied for its effect on an outcome. | A new teaching method. | <span rel="noreferrer" target="_new">Link</span> |
-| **Outcome** | The variable or result that is influenced by the treatment/intervention. | Student test scores. | <span rel="noreferrer" target="_new">Link</span> |
-| **Confounder** | A variable that influences both the treatment and the outcome, potentially biasing the estimated effect. | Age in a study linking exercise to heart health. | <span rel="noreferrer" target="_new">Link</span> |
-| **Randomized Controlled Trial (RCT)** | Participants are randomly assigned to treatment or control groups to ensure comparability. | Testing a new medication by randomly assigning patients to receive either the medication or a placebo. | <a href="https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html" rel="noreferrer" target="_new">Link</a> |
-| **Observational Study** | The researcher observes the effect of treatments without random assignment. | Studying the effect of smoking on lung cancer through observational data. | <span rel="noreferrer" target="_new">Link</span> |
-| **Counterfactual** | The hypothetical scenario of what would have happened to the same units under a different treatment condition. | What would be the unemployment rate if a stimulus package had not been implemented? | <span rel="noreferrer" target="_new">Link</span> |
-| **Selection Bias** | Bias introduced when the subjects studied are not representative of the general population. | Studying only healthy volunteers for a new drug might overestimate its effectiveness. | <span rel="noreferrer" target="_new">Link</span> |
-| **Instrumental Variables (IV)** | Variables that affect the treatment but do not directly affect the outcome, used to estimate causal relationships when controlled experiments are not feasible. | Using distance to the nearest college as an instrument for education level in earnings studies. | <span rel="noreferrer" target="_new">Link</span> |
-| **Difference-in-Differences (DiD)** | Compares the changes in outcomes over time between a treatment group and a control group. | Evaluating the impact of a new law by comparing regions before and after the law is implemented. | <span rel="noreferrer" target="_new">Link</span> |
-| **Regression Discontinuity (RD)** | Uses a cutoff or threshold to assign treatment and compares those just above and below the cutoff to estimate causal effects. | Estimating the effect of a scholarship program on student performance by comparing students around the eligibility cutoff. | <span rel="noreferrer" target="_new">Link</span> |
-| **Propensity Score Matching** | Matches treated and untreated units with similar propensity scores (the probability of receiving the treatment) to estimate the treatment effect. | Comparing outcomes of patients receiving different treatments by matching on demographic and clinical characteristics. | <span rel="noreferrer" target="_new">Link</span> |
-| **Synthetic Control Method** | Constructs a weighted combination of control units to create a synthetic control group for comparison with the treated unit. | Evaluating the impact of a policy change in one country by comparing it to a synthetic control group constructed from other countries. | <a href="https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html" rel="noreferrer" target="_new">Link</a> |
-| **Mediation Analysis** | Examines how an intermediate variable mediates the relationship between an independent variable and a dependent variable. | Analyzing how stress reduction mediates the relationship between exercise and mental health. | <span rel="noreferrer" target="_new">Link</span> |
-| **Natural Experiment** | Uses naturally occurring events or circumstances that mimic random assignment to estimate causal effects. | Studying the impact of a natural disaster on economic outcomes. | <span rel="noreferrer" target="_new">Link</span> |
-| **Heterogeneous Treatment Effects** | Analysis that examines how treatment effects vary across different subgroups or contexts. | Investigating whether a job training program has different effects based on participants' age or education level. | <span rel="noreferrer" target="_new">Link</span> |
-| **Panel Data and Fixed Effects** | Uses data collected over time on the same units to control for unobserved variables that do not change over time. | Evaluating the impact of education policies by analyzing student performance data over multiple years. | <span rel="noreferrer" target="_new">Link</span> |
-| **Synthetic Difference-in-Differences (SDID)** | Combines synthetic control and difference-in-differences methods to estimate treatment effects. | Evaluating the impact of a new law by comparing the treated region to a synthetic control region over time. | <span rel="noreferrer" target="_new">Link</span> |
+### Core concepts
 
-### Key Assumptions
+| Concept | What it means | Example |
+|----|----|----|
+| **Causal Inference** | Determining the cause-and-effect relationship between variables. | The impact of a new drug on patient recovery. |
+| **Treatment / Intervention** | The variable or action being studied for its effect on an outcome. | A new teaching method. |
+| **Outcome** | The variable that is influenced by the treatment. | Student test scores. |
+| **Confounder** | A variable that influences both the treatment and the outcome, biasing the estimated effect. | Age in a study linking exercise to heart health. |
+| **Randomized Controlled Trial (RCT)** | Units are randomly assigned to treatment or control to ensure comparability. See [the chapter](https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html). | Randomly assigning patients to a drug or a placebo. |
+| **Observational Study** | You observe the effect of treatments without controlling assignment. | Smoking and lung cancer, studied from existing data. |
+| **Counterfactual** | What would have happened to the same units under a different treatment. | The unemployment rate had the stimulus not passed. |
+| **Selection Bias** | Bias from studying subjects who are not representative of the population. | Only healthy volunteers enroll, inflating the drug's apparent effect. |
+| **Instrumental Variables (IV)** | A variable that affects treatment but only touches the outcome through it. | Distance to the nearest college as an instrument for education. |
+| **Difference-in-Differences (DiD)** | Compare outcome changes over time between a treatment and a control group. | A new law's effect, comparing regions before and after. |
+| **Regression Discontinuity (RD)** | Use a cutoff to assign treatment, compare units just above and below it. | A scholarship's effect, comparing students around the eligibility line. |
+| **Propensity Score Matching** | Match treated and untreated units with similar probability of being treated. | Matching patients on demographics and clinical history before comparing. |
+| **Synthetic Control** | Build a weighted blend of control units to stand in for the treated one. See [the chapter](https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html). | A policy's effect in one country vs a synthetic of several others. |
+| **Mediation Analysis** | How an intermediate variable carries the effect from cause to outcome. | Stress reduction mediating exercise and mental health. |
+| **Natural Experiment** | A real-world event that mimics random assignment. | A natural disaster's effect on economic outcomes. |
+| **Heterogeneous Treatment Effects** | How the effect varies across subgroups. | Whether a job-training program helps differently by age or education. |
+| **Panel Data and Fixed Effects** | Repeated observations on the same units to absorb time-invariant confounders. | Education policy, tracked across years of student data. |
+| **Synthetic DiD (SDID)** | Combines synthetic control and DiD. | A law's effect, treated region vs synthetic control over time. |
 
-| **Assumption** | **Description** | **Example** | **Reference** |
-|----|----|----|----|
-| **Ignorability/Exchangeability** | Given a set of observed covariates, the potential outcomes are independent of the treatment assignment. | Assuming no unmeasured confounders in a study linking diet to heart disease. | <span rel="noreferrer" target="_new">Link</span> |
-| **Stable Unit Treatment Value Assumption (SUTVA)** | There are no interference effects between units, and each unit has a single version of treatment. | One person's vaccination does not directly affect another's health outcome in the study. | <span rel="noreferrer" target="_new">Link</span> |
-| **Common Support/Overlap** | There is a sufficient overlap in covariate distributions between the treatment and control groups to make comparisons possible. | In a study comparing different teaching methods, students in all groups have similar background characteristics. | <span rel="noreferrer" target="_new">Link</span> |
+### The assumptions that actually bite
 
-### Important Methods
+Most causal estimates fall apart not in the math but in one of these three. They are usually untestable, which is exactly why they are worth writing down.
 
-**Randomized Controlled Trials (RCTs)**
+| Assumption | What it means | Where it breaks |
+|----|----|----|
+| **Ignorability / Exchangeability** | Conditional on observed covariates, treatment is as good as random. | An unmeasured confounder you never recorded. |
+| **SUTVA** | No interference between units, one version of treatment. | One person's vaccination affecting another's outcome. |
+| **Common Support / Overlap** | Treatment and control overlap in covariate space. | A region where only treated units exist, forcing extrapolation. |
 
-- **Purpose**: Establish causal relationships by randomly assigning treatment.
-- **Example**: Testing the effectiveness of a new drug.
-- **Key Point**: Randomization ensures comparability between treatment and control groups.
+### Picking a method: the one thing that matters for each
 
-**Instrumental Variables (IV)**
+When I reach for one of these, the question is never "what does it do" but "what does it need to be true." Here is the load-bearing assumption behind each, the thing that, if violated, quietly makes the estimate wrong.
 
-- **Purpose**: Estimate causal relationships when controlled experiments are not feasible.
-- **Example**: Using proximity to a college as an instrument for education in earnings studies.
-- **Key Point**: The instrument affects the outcome only through the treatment.
+| Method | Use it when | The assumption it lives or dies on |
+|----|----|----|
+| **RCT** | You can assign treatment yourself. | Randomization actually happened (no broken blinding, no attrition). |
+| **IV** | Treatment is confounded but you have a clean instrument. | The instrument touches the outcome *only* through treatment. One alternate path kills it. |
+| **DiD** | You have before/after data for a treated and a control group. | Parallel trends: the two groups would have moved together absent treatment. |
+| **RD** | Treatment flips at a sharp threshold. | Units can't precisely manipulate which side of the cutoff they land on. |
+| **Propensity Score Matching** | Selection is on observables you measured. | You actually observed the confounders. It can't fix unobserved ones. |
+| **Synthetic Control** | One treated unit, many candidate controls, long pre-period. | The synthetic blend tracks the treated unit well *before* treatment. |
+| **Mediation** | You want the pathway, not just the total effect. | No unmeasured confounding of the mediator-outcome link (the part people forget). |
+| **Panel / Fixed Effects** | Repeated measures, confounders that don't change over time. | The confounders really are time-invariant. |
+| **SDID** | DiD's parallel-trends looks shaky and you have a panel. | A weaker, reweighted version of parallel trends still holds. |
 
-**Difference-in-Differences (DiD)**
+### Things I've learned to check before trusting a result
 
-- **Purpose**: Compare changes in outcomes over time between a treatment group and a control group.
-- **Example**: Evaluating the impact of a policy change by comparing regions before and after the policy implementation.
-- **Key Point**: Assumes parallel trends between the treatment and control groups before the intervention.
-
-**Regression Discontinuity (RD)**
-
-- **Purpose**: Estimate causal effects using a cutoff or threshold for treatment assignment.
-- **Example**: Assessing the effect of a scholarship program by comparing students just above and below the eligibility cutoff.
-- **Key Point**: Compares observations just above and below the threshold.
-
-**Propensity Score Matching**
-
-- **Purpose**: Estimate treatment effects by matching treated and untreated units with similar propensity scores.
-- **Example**: Comparing outcomes of patients receiving different treatments by matching on demographic and clinical characteristics.
-- **Key Point**: Reduces bias by ensuring comparable groups.
-
-**Synthetic Control Method**
-
-- **Purpose**: Create a synthetic control group for comparison with the treated unit.
-- **Example**: Evaluating the impact of a policy change by comparing it to a synthetic control group constructed from other regions or countries.
-- **Key Point**: Constructs a weighted combination of control units to match the treated unit.
-
-**Mediation Analysis**
-
-- **Purpose**: Examine how an intermediate variable mediates the relationship between an independent variable and a dependent variable.
-- **Example**: Analyzing how stress reduction mediates the relationship between exercise and mental health.
-- **Key Point**: Identifies pathways through which the treatment affects the outcome.
-
-**Panel Data and Fixed Effects**
-
-- **Purpose**: Control for unobserved variables that do not change over time by using data collected over multiple time periods.
-- **Example**: Evaluating the impact of education policies by analyzing student performance data over multiple years.
-- **Key Point**: Removes bias from time-invariant unobserved variables.
-
-**Synthetic Difference-in-Differences (SDID)**
-
-- **Purpose**: Combine synthetic control and difference-in-differences methods to estimate treatment effects.
-- **Example**: Evaluating the impact of a new law by comparing the treated region to a synthetic control region over time.
-- **Key Point**: Integrates the strengths of both methods for more robust causal inference.
-
-### Practical Implementation Tips
-
-- **Data Quality**: Ensure high-quality, accurate, and relevant data.
-- **Model Validation**: Validate models using out-of-sample tests and robustness checks.
-- **Assumption Testing**: Test key assumptions such as common support and no interference between units.
-- **Sensitivity Analysis**: Conduct sensitivity analyses to check the robustness of the results to different assumptions and specifications.
+- Plot the overlap. If treated and control don't share covariate space, the model is extrapolating and nobody told you.
+- Stress the key assumption, not the data. More features won't save a design whose identification is broken.
+- Run a sensitivity analysis. "How big would an unobserved confounder have to be to flip this?" is often more honest than the point estimate.
+- Be suspicious of a clean answer from messy observational data. It usually means an assumption is doing more work than you realize.

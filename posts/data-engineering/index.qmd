@@ -1,6 +1,7 @@
 ---
 title: "Data engineering: simple and complex data pipelines"
 date: "2021-04-13"
+description: "Notes on data pipeline patterns I picked up moving from ML work into data engineering, from a Chris Riccomini talk."
 categories: ["data-engineering"]
 ---
 

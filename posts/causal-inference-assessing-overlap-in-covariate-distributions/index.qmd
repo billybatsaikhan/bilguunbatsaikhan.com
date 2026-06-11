@@ -1,6 +1,7 @@
 ---
 title: "Causal Inference: Assessing Overlap in Covariate Distributions"
 date: "2024-09-01"
+description: "Working through Chapter 14 of Imbens & Rubin: the diagnostics for checking covariate overlap between treatment and control, with the formulas spelled out."
 categories: ["CausalInference", "DataScience", "DataScienceBasics", "howto"]
 ---
 

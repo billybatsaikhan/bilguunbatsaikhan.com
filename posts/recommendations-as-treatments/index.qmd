@@ -1,6 +1,7 @@
 ---
 title: "Recommendations as treatments"
 date: "2024-06-17"
+description: "Joachims et al. reframe recommender systems as policies you can study with causal tools like inverse propensity weighting. My summary."
 ---
 
 This is the summary of "Recommendations as Treatments" [(paper](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875&ved=2ahUKEwiIrfqMotqGAxXerlYBHcPQD70QFnoECBsQAQ&usg=AOvVaw1LcYU_15mHx4LhSr_GqiDS)) by Joachims et al.

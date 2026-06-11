@@ -1,6 +1,7 @@
 ---
 title: "Changes to my workflow"
 date: "2026-04-12"
+description: "What changed in how I work after handing real tasks to a terminal coding agent, and what it replaced."
 ---
 
 It's been a while. I've been training for a triathlon and between that, life changes, and the day job, writing blog posts fell off the priority list. But something has shifted enough in how I work that I wanted to document it before it becomes normal and I forget what it replaced.\

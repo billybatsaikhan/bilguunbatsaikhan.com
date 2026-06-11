@@ -1,6 +1,7 @@
 ---
 title: "Going down a random rabbit hole: From XML Tags to $100M Weight Updates"
 date: "2026-03-04"
+description: "Why Anthropic leans on XML tags. Following the thread from prompt formatting down to how self-attention was trained."
 ---
 
 I started by asking a question: **Why does Anthropic insist on XML tags?** It sounded like a minor formatting preference. But as I dug into the engineering, it became clear that XML isn't just "nice to use"—it is the **statistical anchor** Claude’s 175B+ parameters were built to recognize.

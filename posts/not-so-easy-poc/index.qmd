@@ -1,6 +1,7 @@
 ---
 title: "Not so simple classification."
 date: "2021-02-14"
+description: "Binary classification gets called easy. A POC predicting campaign visits showed me where that assumption falls apart."
 categories: ["classification"]
 ---
 

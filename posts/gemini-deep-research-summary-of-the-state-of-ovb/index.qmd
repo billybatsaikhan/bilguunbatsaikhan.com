@@ -1,6 +1,7 @@
 ---
 title: "Estimating the Distribution of Omitted Variable Bias in Causal Inference"
 date: "2025-04-06"
+description: "How large would an unobserved confounder need to be to overturn your causal estimate? A survey of methods for bounding omitted variable bias."
 categories: ["CausalInference", "LLM"]
 ---
 

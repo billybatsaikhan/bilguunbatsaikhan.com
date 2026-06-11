@@ -1,6 +1,7 @@
 ---
 title: "When Linear Regression Gets Massively Confused"
 date: "2025-03-15"
+description: "A mass point (a big cluster of identical values) can wreck linear regression after a log transform. Why it happens and what it breaks."
 categories: ["DataScienceBasics", "Know-how", "regression"]
 ---
 
