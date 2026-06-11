@@ -20,11 +20,12 @@ website:
       - icon: github
         href: https://github.com/billybatsaikhan
         aria-label: GitHub
-  google-analytics: ""
   open-graph: true
 
 format:
   html:
+    include-in-header:
+      - umami.html
     theme:
       - cosmo
       - styles.scss
