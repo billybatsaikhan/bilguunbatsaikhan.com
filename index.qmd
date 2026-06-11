@@ -1,0 +1,14 @@
+---
+title: "Applied Data Science & ML"
+subtitle: "Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science & ML."
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
+  sort-ui: false
+  filter-ui: false
+  feed: true
+page-layout: full
+title-block-banner: false
+---

@@ -1,0 +1,29 @@
+/*-- scss:defaults --*/
+// Clean, readable science-blog typography
+$font-family-sans-serif: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$font-size-root: 18px;
+$body-color: #1a1a1a;
+$link-color: #2a6496;
+
+/*-- scss:rules --*/
+// Comfortable reading width handled by grid in _quarto.yml; tune line-height
+body {
+  line-height: 1.65;
+}
+
+// Make display math breathe a little
+.katex-display {
+  margin: 1.2em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+// Post listing date styling
+.listing-date {
+  color: #6c757d;
+}
+
+// Code blocks
+pre.sourceCode {
+  border-radius: 6px;
+}

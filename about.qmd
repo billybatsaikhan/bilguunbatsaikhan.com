@@ -1,0 +1,30 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: trestles
+  links:
+    - icon: github
+      text: GitHub
+      href: https://github.com/bilguuniqo
+    - icon: envelope
+      text: Email
+      href: mailto:bilguuniqo@gmail.com
+    - icon: globe
+      text: Website
+      href: https://bilguunbatsaikhan.com
+---
+
+Hi, my name is **Billy**. I'm an Applied Scientist based in Japan.
+
+This site is where I archive topics related to applied data science, machine
+learning, and causal inference — equal parts public notebook and reference for
+my future self.
+
+Topics I tend to write about:
+
+- Causal inference (overlap, omitted-variable bias, recommendations as treatments)
+- Machine learning in production / MLOps
+- The occasional deep dive when I fall down a rabbit hole
+
+If something here is useful, wrong, or worth a conversation, reach out by email.

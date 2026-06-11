@@ -1,0 +1,333 @@
+---
+title: "Deep dive into MLOps."
+date: "2021-05-14"
+categories: ["mlops"]
+description: "Proof Of Concept (POC) is one of the key phases in Machine Learning (ML)-related projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot."
+---
+
+### Motivation
+
+Machine Learning (ML) Proof Of Concept (POC) is one of the key phases in ML projects. Iteratively coming up with a better modeling approach, improving data quality, and finally, delivering a minimum viable solution for a grand problem is fascinating and you learn a lot.
+
+At the end of the POC phase, if the results are satisfactory and stakeholders agree to move forward, the ML engineer gets tasked with finding and implementing an appropriate method for deploying the model into production. Depending on the business use case and the scale of the project (and many other factors), he/she will usually select to proceed with one of the following (non-exhaustive):
+
+1.  **Type 1**: Save the trained model artifacts in the backend. Implement an inference logic that uses the trained model. The frontend engineer then requests the predictions from the backend via HTTP.
+2.  **Type 2**: Choose to use one of the cloud services (Amazon AWS, Google GCP, Microsoft Azure) for training the model. Transfer the training data to the cloud, train the model and deploy it in the cloud. Set up a cloud endpoint and return predictions via HTTP requests.
+3.  **Type 3 (worst)**: Implement the training and the inference logic in the backend. At the same time, implement the data **e**xtraction, **t**ransformation and the **l**oading (ETL) processes in the backend so that the system is able to retrain the model when needed. Try his/her best to setup monitoring, so that one day when things go wrong, he/she can find and fix the problem.
+4.  **Type 4**: Use the cloud services to setup everything (ETL, data preprocessing, model training, monitoring, configuration, etc.). The frontend engineer then requests predictions via HTTP endpoint provided by the cloud service.
+5.  **Type 5**: Use open-source packages, connect and build everything manually.
+
+There can be many other options too. However the key message here is that **ML deployment can take on many forms.**
+
+With ever increasing data and the expertise of the people dealing with the data, various ML models are being trained, tested, and deployed into production with unprecedented rates. However, with the increasing number of model deployments, ML practitioners have been experiencing a set of problems related to the unique property of ML-embedded systems - **the usage of data**. And this is exactly where MLOps comes to the rescue. Similar to the concept/culture of [DevOps](https://en.wikipedia.org/wiki/DevOps) in the traditional software engineering discipline, the term **MLOps refers to the engineering culture and best practices related to deploying and maintaining real-world ML systems**.
+
+------------------------------------------------------------------------
+
+**There are many resources related to MLOps.** Some of my favorites are:
+
+1.  ["Hidden Technical Debt in Machine Learning Systems"](https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf) - Google **(Analyzed in this blog post.)**
+2.  ["Machine Learning Guides"](https://developers.google.com/machine-learning/guides) - Google
+3.  ["MLOps for non-DevOps folks, a.k.a. “I have a model, now what?!"](https://www.youtube.com/watch?v=_xH7mlDGb0c) - Hannes Hapke
+4.  ["From Model-centric to Data-centric AI"](https://www.youtube.com/watch?v=06-AZXmwHjo) - Andrew Ng
+5.  ["Bridging AI's Proof-of-Concept to Production Gap"](https://www.youtube.com/watch?v=tsPuVAMaADY&t=320s) - Andrew Ng
+6.  ["MLOps: Continuous delivery and automation pipelines in machine learning"](https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning) - Google
+7.  ["What is ML Ops? Best Practices for DevOps for ML"](https://www.youtube.com/watch?v=_jnhXzY1HCw) - Kaz Sato
+8.  ...and so on.
+
+Perhaps the most popular resource on the above list is the paper called ["Hidden Technical Debt in Machine Learning Systems"](https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf) by Google.
+
+When I first read the paper, I found it to be highly useful in practice and understood that I need to go over this paper whenever I am building ML solutions. So to make my life a bit easier, I have decided to summarize the paper and do it so using simple terms and explanations.
+
+------------------------------------------------------------------------
+
+![](/images/2021/05/Screen-Shot-2021-05-19-at-11.15.12.png)
+
+### **Key points:**
+
+1.  **Developing and deploying ML systems might seem fast and cheap**, **but** **maintaining** **it for the long term** **is** **difficult and expensive**.
+2.  **Goal** **of dealing with technical debt is not to add new functionality, but to enable future improvements, reduce errors, and improve maintainability.**
+3.  **Data influences ML system behavior.** **Technical debt in ML systems may be difficult to detect because it exists at the system level rather than the code level.**
+
+------------------------------------------------------------------------
+
+### Complex Models Erode Boundaries
+
+#### **<u>1.  Entanglement</u>**
+
+1.  **CACE principle:**\
+    **CACE stands for Changing Anything Changes Everything.** It refers to the entangled property of ML-systems, where changing the input distributions of a single feature can lead to changes in the rest of the features. CACE applies to input signals, hyper-parameters, learning settings, sampling methods, convergence thresholds, data selection, and essentially every other possible tweak.
+2.  **Possible solution \#1:**\
+    **If the problem can be decomposed into sub-problems (disjointed, uncorrelated), train models for each sub-problem and serve ensemble models.** In many cases ensembles work well because the errors in the component models are uncorrelated. <u>However, ensemble models lead to strong entanglement: improving an individual model may actually make the system accuracy worse if the remaining errors are more strongly correlated with the other components</u>.
+3.  **Possible solution \#2:**\
+    **Monitor and detect changes in the prediction behavior in real-time.** Use visualization tools to analyze the changes.
+
+![Example of feature entanglement: complex correlation of features.](/images/2021/05/Screen-Shot-2021-05-19-at-14.19.32.png)
+
+#### **<u>2. Correction Cascades (chain reaction)</u>**
+
+1.  When we have a ready-to-use **model m<sub>a</sub>** for **problem A** and need to train a new model for a **problem A<sup>'</sup>**, it makes sense to train a **correction model m<sup>'</sup><sub>a</sub>** that takes as input the predictions of the **model m<sub>a</sub>**.
+2.  This dependency can be cascaded further, for example training a **model m<sup>''</sup><sub>aa</sub>** based on the **model m<sup>'</sup><sub>a</sub>**.
+3.  This dependency structury creates an **improvement deadlock**. When we try to improve the accuracy of a single model, other models are affected by the change causing system-level issues.
+4.  **Possible solution \#1**:\
+    Train and tune the **model m<sub>a</sub>** directly for the **problem A<sup>'</sup>** by adding appropriate features specific to the **problem A<sup>'</sup>**.
+5.  **Possible solution \#2**:\
+    Create a new model for the **problem A<sup>'</sup>**.
+
+![Example of correction cascades.](/images/2021/05/Screen-Shot-2021-05-19-at-12.21.47.png)
+
+#### <u>**3. Undeclared Consumers**</u> **(Please let us know if you are using!)**
+
+1.  Often, **predictions of a model are used in other services.**
+2.  If we don't **identify all end users of a model**, later in the process, if we make changes to the model, the secret consumers will be **affected silently and will face strange issues**. Without clear definition of consumers, it becomes difficult and costly to make changes to the model at all.
+3.  In practice, **engineers will choose to use the most accessible signal at hand** (e.g. model predictions), especially when deadlines are approaching.
+4.  **Possible solution:**\
+    Setup <u>access restrictions</u> and <u>determine all consumers</u>. Similarly, setting up [service-level agreements (SLAs)](https://en.wikipedia.org/wiki/Service-level_agreement) would also work.
+
+![Example of an undeclared consumer.](/images/2021/05/Screen-Shot-2021-05-19-at-14.33.21.png)
+
+### Data Dependencies Cost More than Code Dependencies
+
+#### <u>**1. Unstable Data Dependencies**</u> **(Can I rely on you?)**
+
+1.  **ML-systems often consume data (input signals) produced by other systems.**
+2.  **Some data might be unstable** (qualitatively or quantitatively changing over time).\
+    <u>**For example:**</u>\
+    a) Input data to **system B** is produced by a machine learning model from **system A**, and **system A** decides to update its model.\
+    b) Input data comes from a data-dependent lookup table (e.g. calculates TF/IDF scores or semantic mappings).\
+    c) **Engineering ownership** **of the input signal is separate from the engineering ownership of the model that consumes it.** Engineers who own the input signal can make changes to the data at any time. This makes it costly for the engineers who consume the data to analyze how the change affects their system.\
+    d) **Corrections in the input data can lead to detrimental consequences too!** Similar to the CACE principle.\
+    <u>For example:</u>\
+    A model that is previously trained on <u>mis-calibrated input signals</u> can start to behave strangely when the input data is recalibrated. This means that although the update was <u>meant to fix a problem</u>, it actually <u>introduced complications</u> to the system.
+3.  **Possible solution:**\
+    **Create versioned copy of the input data.** Using stable version of the data until the new data is checked and tested will ensure that the system is stable. **\*\*\***Keep in mind that saving versioned copies of the data means we have to deal with potential data staleness and the cost of maintenance.
+
+![Example of data dependency between systems.](/images/2021/05/Screen-Shot-2021-05-19-at-16.27.59.png)
+
+#### <u>**2. Underutilized Data Dependencies**</u> **(How will this feature affect me in the future?)**
+
+1.  **Underutilized data dependency - data that has very small incremental benefit for the model (0.0001% improvement)**.
+2.  <u>**Example:**</u>\
+    **A system introduces new product numbering logic to the system.** Since instantly removing the old product numbering logic will lead to disasters (since other components depend on it), engineers decide to keep the new and the old numbering logics for the time being. This way, **new products use the new product numbering logic only**, but **old products have both the new and the old product numbers**. Accordingly, the model is retrained using both features continuing to rely on old product numbers for some products. A year later, **when the old numbering logic code is deleted, it will be difficult for the maintainers to find what went wrong.**
+3.  **Types of underutilized data dependency**:\
+    **a) Legacy Features.**\
+    A feature **F** is included in a model early in its development. Over time, **F** is made redundant by new features but this goes undetected.\
+    **b) Bundled Features.**\
+    During an experiment, a group of features is evaluated and found to be useful. Because of deadline pressures, the group of features are added to the model together, possibly including features with low value.\
+    **c) ǫ-Features.** As machine learning researchers, it is tempting to improve the model accuracy even when the accuracy gain is small and the complexity overhead is high.\
+    **d) Correlated Features.** Often two features are strongly correlated, but one is more directly causal. Many ML methods have difficulty detecting this and credit the two features equally, or may even pick the non-causal one. When the correlations disappear in the future, the model will perform poorly.
+4.  **Possible solution:**\
+    **Leave-one-feature-out** evaluations can be used to detect underutilized dependencies. Regularly performing this evaluation is recommended.
+
+![Example of underutilized data dependency. Feature J is an old feature similar to Feature K. In the future, when we remove Feature J modules that depend on it will cause secret failures.](/images/2021/05/Screen-Shot-2021-05-19-at-18.11.04.png)
+
+#### <u>**3. Static Analysis of Data Dependencies**</u> **(Data Catalogs!)**
+
+1.  In traditional code, compilers and build systems perform static analysis of dependency graphs. **Tools for static analysis of data dependencies** are far less common, but **are essential for error checking, tracking down consumers, and enforcing migration and updates**.
+2.  **Annotating data sources and features with metadata** (e.g. deprecation, platform-specific availability, and domain-specific applicability), and setting up automatic checks to make sure all annotations are updated **helps to resolve the dependency tree** (users and systems who use the data).
+3.  This kind of tooling can make **migration and deletion much safer** in practice.
+4.  Google's solution can be found [here](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41159.pdf) (Section 8: "AUTOMATED FEATURE MANAGEMENT").
+
+![Example of data dependency management.](/images/2021/05/Screen-Shot-2021-05-19-at-18.40.03.png)
+
+------------------------------------------------------------------------
+
+### Feedback Loops
+
+When it comes to **live ML systems** that update their behavior over time , it is difficult to predict how they will behave when they are released into production. This is called **analysis debt** - the difficulty of measuring the behavior of a model before deployment.
+
+#### **<u>1. Direct Feedback Loops</u> (Learning wrong things)**
+
+1.  A model may directly influence the selection of its own future training data.\
+    <u>Example:</u>\
+    In an e-commerce website a model might recommend 10 different products to a new customer. The customer <u>might choose a product</u> category that he/she needs to purchase at the moment, but <u>which is not related to his/her actual interests</u>. The <u>model captures this and retrains itself, learning the wrong interest</u> and becoming confident that the chosen product category conveys the customer's interest.
+2.  **Possible Solution \#1:**\
+    Acquiring customer feedback on the recommendations provided by the system.
+3.  **Possible Solution \#2:**\
+    Increasing "exploration" of the model so that it doesn't "exploit" small number of signals ([Bandit Algorithms](https://en.wikipedia.org/wiki/Multi-armed_bandit)).
+4.  **Possible Solution \#3:**\
+    Using some amount of [randomization](https://www.microsoft.com/en-us/research/wp-content/uploads/2013/11/bottou13a.pdf).
+
+#### **<u>2. Hidden Feedback Loops</u> (We were connected???)**
+
+1.  **Hidden Feedback Loops - two systems influence each other indirectly (in a hidden, difficult-to-detect manner).**
+2.  Difficult to detect!
+3.  Improving one system may lead to changes in the behavior of the other.
+4.  Hidden feedback loops can also occur in completely disjoint systems.\
+    <u>Example:</u>\
+    Scenario of two investment firms when one firm makes changes to its bidding algorithm (improvements, bugs, etc.) and the other firm's model catches this signal and changes its behavior too (might lead to disasters).
+
+------------------------------------------------------------------------
+
+### ML-System Anti-Patterns
+
+**In the real world, ML-related code takes a very small fraction of the entire system.** Therefore, it is <u>important to consider other parts of the system</u> and <u>make sure that there are as few system-design anti-patterns as possible</u>.
+
+![Figure 1 in "Hidden Technical Debt in Machine Learning Systems", Google.](/images/2021/05/Screen-Shot-2021-05-20-at-17.05.22.png)
+
+#### **<u>1. Glue Code</u>** (Packages should be replaceable --\> APIs)
+
+1.  **Glue code system design** - system with large portion of <u>code written to support the specific requirements of general-purpose packages</u>.
+2.  Glue code makes it **difficult to test alternatives** methods or make improvements **in the future**.
+3.  If **ML code takes 5%** and **glue code takes 95%** of the total code, it makes sense to implement a native solution rather than using general-purpose packages.
+4.  **Possible Solution:**\
+    Wrap general-purpose packages into **common APIs**. This way we can **reuse the APIs** **and** **not worry** **about changing packages** (e.g. s[cikit-learn's Estimator API](https://arxiv.org/pdf/1309.0238.pdf) with common fit(), predict() methods for all models).
+
+#### <u>**2. Pipeline Jungles**</u> **(Keep things organized)**
+
+1.  **Usually occurs during data preparation.**
+2.  **Adding a new data source** to the data pipeline 1-by-1**,** gradually makes it **difficult to make improvements and detect errors**.
+3.  **Possible Solution \#1:**\
+    **Think about data collection and feature extraction as a whole.** Redesign the jungle pipeline from scratch. It might require a lot of effort, but is an investment worth the price.
+4.  **Possible Solution \#2:**\
+    **Make sure researchers and engineers are not overly separated.** Packages written by the researchers may seem like black-box algorithms to the engineers who use them. If possible, **integrate researchers and engineers into the same team** (or create hybrid engineers).
+
+![Icons from thenounproject.com. Integrating researchers and engineers into one team.](/images/2021/05/Screen-Shot-2021-05-20-at-18.42.28.png)
+
+#### <u>**3.**</u> **<u>Dead Experimental Codepaths</u> (Clean your room!)**
+
+1.  **Adding experimental code to the production system can cause issues in the long term.**
+2.  It becomes difficult/impossible to test all possible interactions between codepaths. The system becomes overly complex with many experimental branches.
+3.  "A famous example of the dangers here was Knight Capital’s system losing \$465 million in 45 minutes, because of unexpected behavior from obsolete experimental codepaths." ([source](https://www.sec.gov/news/press-release/2013-222))
+4.  **Possible Solution:**\
+    "**Periodically reexamine each experimental branch** to see what can be ripped out. Often only a small subset of the possible branches is actually used; many others may have been tested once and abandoned."
+
+![Example of dead code.](/images/2021/05/Screen-Shot-2021-05-24-at-16.27.09.png)
+
+#### <u>**4.**</u> **<u>Abstraction Depth</u> (Can we abstract this?)**
+
+1.  Relational database is a successful example of abstraction.
+2.  In ML it is difficult to come up with robust abstraction (how to create abstractions for a data stream, a model and a prediction?).
+3.  <u>Example abstraction:</u>\
+    **[Parameter-server abstraction](https://web.eecs.umich.edu/~mosharaf/Readings/Parameter-Server.pdf) - framework for distributed ML problems.** "Data and workloads are distributed over worker nodes, while the server nodes maintain globally shared parameters, represented as dense or sparse vectors and matrices."
+
+#### <u>**5.**</u> **<u>Common Smells</u> (Something's fishy...)**
+
+1.  "**Code Smells** **are patterns of code that suggest there might be a problem**, that there might be a better way of writing the code or that more design perhaps should go into it." ([source)](https://github.com/lee-dohm/code-smells#:~:text=Code%20Smell%20is%20a%20term,perhaps%20should%20go%20into%20it.)
+2.  **Plain-Old-Data Type Smells.**\
+    **Check what flows in and out of ML systems.** The data (signal, features, information, etc.) flowing in and out of ML systems is usually of type integer or float. "In a robust system, a model parameter should know if it is a log-odds multiplier or a decision threshold, and a prediction should know various pieces of information about the model that produced it and how it should be consumed."
+3.  **Multiple-Language Smell.**\
+    Using multiple programming languages, no matter the great packages written in it, makes it difficult to efficiently test and, later, transfer the ownership to others.
+4.  **Prototype Smell.**\
+    Constantly using prototype environments is an indication that the production system is "<u>brittle, difficult to change, or could benefit from improved abstractions and interfaces</u>".\
+    <u>This leads to 2 potential problems:</u>\
+    - Usage of the prototype environment as the production environment due to time pressures.\
+    - Prototype (small scale) solutions rarely reflect the reality of full-scale systems.
+
+------------------------------------------------------------------------
+
+### Configuration Debt
+
+**ML systems come with various configuration options:**\
+1.  Choice of input features\
+2.  Algorithm-specific learning configurations (hyperparameters, number of nodes, layers, etc.)\
+3.  Pre- & post-processing methods\
+4.  Verification methods
+
+In full-scale systems, configuration code far exceeds the number of lines of traditional code. Mistakes in configuration can lead to loss of time, waste of computing resources, and other production issues. Thus, **verifying and testing configurations is crucial**.
+
+**Example of difficult-to-handle configurations (Choice of input features):**\
+1.  Feature A was <u>incorrectly logged</u> from 9/13-9/17.\
+2.  Feature B <u>isn't available</u> before 10/7.\
+3.  Feature C has to have 2 <u>different acquisition methods</u> due to changes in logging.\
+4.  Feature D <u>isn't available in production</u>. Substitute feature D' must be used.\
+5.  Feature Z <u>requires extra training memory</u> for the model to train efficiently.\
+6.  Feature Q has <u>high latency</u>, so it makes Feature R also unusable.
+
+<u>**Configurations must be:**</u>\
+1.  **Easy to change.** It should seem as making a small change to the previous configuration.\
+2.  **Difficult to make manual errors, omissions, or oversights**.\
+3.  **Easy to analyze and compare with the previous version.**\
+4.  **Easy to check** (basic facts and details)**.**\
+5.  **Easy to detect unused or redundant settings.**\
+6.  **Code reviewed and maintained in a repository.**
+
+------------------------------------------------------------------------
+
+### Dealing with the Changes in the External World
+
+**ML systems often directly interact with the <u>ever-changing</u> real world.** Due to volatility in the real world, ML systems require <u>continuous maintenance</u>.
+
+#### **<u>1. Fixed Thresholds in Dynamic Systems</u>**
+
+1.  For problems that predict whether a given sample is true or not it is required to set a **decision threshold**.
+2.  The classic approach is to choose a decision threshold that maximizes a certain metric (precision, recall, etc.).
+3.  **When a model is retrained on a new data, the previous decision threshold usually becomes invalid.**
+4.  Manually calculating thresholds is time consuming, so automatic optimization method is required.
+5.  Optimal approach is to extract a held-out validation set and use it to automatically calculate the optimal thresholds.
+6.  **Approach used by the Google Data Scientists can be found in the "[Unofficial Google Data Science" blog post.](https://www.unofficialgoogledatascience.com/2021/04/why-model-calibration-matters-and-how.html)**
+7.  My simple approach dealing with decision thresholds - [blog post](/not-so-easy-poc/).
+
+------------------------------------------------------------------------
+
+#### **<u>2. Monitoring and Testing</u>**
+
+1.  Unit tests and end-to-end tests of systems are valuable. However, in the real-world, these tests are simply not enough.
+2.  **<u>Realtime monitoring with automated response</u> to issues is essential for long-term system reliability.**
+3.  **What should be monitored:**\
+    <u>**a) Prediction Bias**</u>\
+    **Is the distribution of predicted and observed labels equal?** Although this test is not enough to detect a model that simply outputs average values of label occurrences without regard to the input features, it is surprisingly effective.\
+    <u>For example:</u>\
+    - Real-world behavior changes and, now, the training data distributions are not reflective of reality. **In this case, analyzing predictions for various dimensions (e.g. based on race, gender, age, etc.) can isolate biases.** Further, we can setup automated alerting in case we detect prediction bias.\
+    \
+    **<u>b) Action Limits</u>**\
+    **In real-world ML systems that take actions such as bidding on items, classifying messages as spam, it is useful to set <u>action limits</u> as a sanity check.** "If the system hits a limit for a given action, automated alerts should fire and trigger manual intervention or investigation."\
+    <u>For example:</u>\
+    - Setting maximum number of bids per hour\
+    - Setting maximum ratio of spams to regular emails to be 3/5\
+    \
+    **<u>c) Up-Stream Producers</u>**\
+    When data comes from up-stream producers, the **up-stream producers need to be monitored, tested, and routinely meet objectives** that take into account the downstream ML system. Most importantly, any issues in the up-stream must be propagated to the downstream ML system. And the ML system must also notify its downstream consumers.\
+4.  **Issues that occur in real-time** and have impact on the system **should be dealt with automatic measures.** Human intervention can work, but <u>if the issue is time-sensitive it won't work</u>. Automatic measures are worth the investment.
+
+------------------------------------------------------------------------
+
+### Other Areas of ML-related Debt
+
+#### **<u>1. Data Testing Debt</u>**
+
+**Compared to traditional systems, ML systems replace code with data.** And if the input data is the core component, it makes sense to test the data. Basic sanity checks, as well as complex distribution checks are useful.
+
+#### **<u>2. Reproducibility Debt</u>**
+
+**Reproducibility of experiments is an important principle of the scientific method.** However, randomized algorithms, parallel learning and complex real-world interactions make it difficult to reproduce results.
+
+#### **<u>3. Process Management Debt</u>**
+
+**Mature systems may have hundreds of models running in parallel.** <u>Updating configurations of many similar models safely and automatically, managing and assigning resources among models with different business properties, visualizing and detecting issues in the flow of data, and being able to recover the system from production issues are important features of a reliable ML system.</u>
+
+#### **<u>4. Cultural Debt</u>**
+
+**To keep an ML system healthy, create teams with diverse strengths in ML research and engineering.**\
+Team culture should reward:\
+- Deletion of features\
+- Reduction of complexity\
+- Improvements in reproducibility\
+- Improvements in stability\
+- Monitoring as well as improvements in accuracy.
+
+------------------------------------------------------------------------
+
+### **Conclusion**
+
+1.  **Speed is not evidence of low technical debt or good practices** because the **<u>real cost of debt becomes apparent over time</u>**.
+2.  **Useful questions for detecting ML technical debt:**\
+    - How easily can an entirely new algorithmic approach be tested at full scale?\
+    - What is the transitive closure of all data dependencies? <u>Transitive closure</u> gives you the set of all places you can get to, from any starting place.\
+    - How precisely can the impact of a new change to the system be measured?\
+    - Does improving one model or signal degrade others?\
+    - How quickly can new members of the team be brought up to speed?
+3.  **Key areas that will help reduce technical debt:**\
+    - Maintainable ML\
+    - Better abstractions\
+    - Testing methodologies\
+    - Design patterns
+4.  **Engineers and researchers both need to be aware of technical debt.** "Research solutions that provide a tiny accuracy benefit at the cost of massive increases in system complexity are rarely wise practice."
+5.  **Dealing with technical debt can only be achieved by a change in team culture.** "Recognizing, prioritizing, and rewarding this effort is important for the long term health of successful ML teams."
+
+------------------------------------------------------------------------
+
+And this is it!
+
+In this post, I have tried to summarize the key points of the prominent paper "[Hidden Technical Debt in Machine Learning Systems"](https://papers.nips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf) by Google.
+
+!["The Thinker" - by Avery Evans, unsplash.com](/images/2021/05/avery-evans-NOm4f0xx2bU-unsplash.jpg)

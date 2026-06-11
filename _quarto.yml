@@ -1,0 +1,39 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Applied Data Science & ML"
+  description: "Hi, my name is Billy. This is where I try to archive topics related to Applied Data Science & ML."
+  site-url: https://bilguunbatsaikhan.com
+  favicon: favicon.ico
+  navbar:
+    right:
+      - text: Home
+        href: index.qmd
+      - text: About
+        href: about.qmd
+      - icon: github
+        href: https://github.com/bilguuniqo
+        aria-label: GitHub
+      - icon: rss
+        href: index.xml
+        aria-label: RSS feed
+  google-analytics: ""
+  open-graph: true
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    toc: true
+    code-copy: true
+    code-overflow: wrap
+    html-math-method: katex
+    highlight-style: github
+    grid:
+      body-width: 900px
+
+# Bibliography support is available per-post via a `bibliography:` key in the
+# post's front matter; numbered equations + cross-refs work out of the box.

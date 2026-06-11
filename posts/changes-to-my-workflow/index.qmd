@@ -1,0 +1,57 @@
+---
+title: "Changes to my workflow"
+date: "2026-04-12"
+---
+
+It's been a while. I've been training for a triathlon and between that, life changes, and the day job, writing blog posts fell off the priority list. But something has shifted enough in how I work that I wanted to document it before it becomes normal and I forget what it replaced.\
+\
+As I have mentioned in my previous posts, I build data pipelines, ML and causal inference models, and internal analytics tools. Currently, I'm working on a research paper and pushing toward a conference deadline. For the past several months, I've been using an internal coding assistant that lives in my terminal: it reads my files, runs shell commands, talks to cloud services, and maintains context across long sessions. Not autocomplete. Closer to a junior engineer who has read every file in your repo and takes direction well (conditional on the task), but will confidently ship untested code if you let it.\
+The interesting thing isn't the code generation. It's that my job has quietly shifted from writing code to delegating work and evaluating output. That's a different skill entirely, and most people using these tools haven't realized the transition is happening to them.
+
+### API That Went Through Five Revisions
+
+I was building an analysis engine for a serverless function that loads a hierarchical metric tree from a data warehouse (think: a top-level KPI decomposes into sub-metrics algebraically, each decomposing further across ~100 nodes), and propagates what-if changes through the tree. The agent wrote the first version in hours. It worked. Tests passed.\
+\
+What followed was five rounds of refactoring the same module. Each iteration, the agent rewrote the code, updated tests, redeployed. I kept pushing: "no, these columns aren't tree nodes, they're raw inputs to derived ratios. The naming should reflect that." A flat lookup dict became a typed configuration with a dataclass. Each round got cleaner.\
+\
+I was doing design work, not typing work. The coding agent handled mechanical refactoring: renaming across files, updating assertions, regenerating query logic. I decided whether the abstraction made sense.\
+\
+The code review came back with a pointed question: "Do we still need this data-loading mode?" I initially argued yes! The reviewer was right though: another tool already handled data inspection. And because each service should do one thing, we ripped the duplicated data loading module out, rewrote the interface from four modes to two, updated three packages, revalidated all nodes, and merged. The agent did all the mechanical work and I was responsible for detecting "smelly" work and push back when necessary.
+
+### Writing Math Proofs
+
+This is where it got interesting. My paper extends a recent sensitivity analysis framework from linear models to double machine learning. The theory section was a 23-line stub. My collaborator said it needed to become the centerpiece. I had the agent download the original paper from arxiv, extract the proofs, and explain each theorem. Key finding was that the original proofs use linear algebra projections everywhere and they don't extend to nonparametric models. We couldn't just cite them. We needed original proofs.\
+\
+After a comprhensive literature review, a three-tier proof structure emerged in one session. Proposition 1: the linear case reduces exactly to the original framework. Proposition 2: additive models, consistency via decomposition. Proposition 3: general nonlinear case via concentration inequalities. The agent wrote the LaTeX. I checked the math. Then I told it to run an adversarial audit on its own proofs.\
+\
+It found two critical errors. First, it used an inequality that requires independent random variables. Our sampling scheme produces negatively correlated variables. Wrong inequality. We switched to one that handles dependent sampling. Second, it claimed a variance function is always concave. I was skeptical. It produced a counterexample with two interacting binary variables where the marginal information gain \*increases\* which is the opposite of concavity. The claim was false.
+
+The agent wrote a proof, disproved part of its own proof with a concrete counterexample, then rewrote the proposition with an honest three-case treatment. I've worked with human collaborators who wouldn't catch that. At this point it feels like if I throw as many tokens as time allows and provide clean and organized context to the agent, solving great number of problems is just a matter of time (not gonna argue that its able to find the pareto optimal solution or not).
+
+### Thousands of Cloud Training Jobs
+
+Next, for the above mentioned paper we needed a massive simulation study with nearly 3,000 configurations across effect sizes, confounding strengths, and increasing sample sizes. Each runs as a cloud training job. The agent wrote the dispatch script.
+
+The dispatch job died at job 194. Root cause: O(n) bottleneck. For every new job, the script polled the status of all previously launched jobs. API rate limits turned this into a 40-second check per iteration. Throughput collapsed. Credentials expired.
+
+But to fix this, the agent researched the cloud API's behavior, found that job creation fails synchronously at the quota limit rather than queuing, and redesigned as fire-and-forget with retry-on-quota. The new version dispatched at maximum API rate, handled quota limits with backoff, and added resume flags for credential expiry. After this fix, all jobs running.\
+\
+Then it collected results, identified which hyperparameter actually dominates model bias (not the one I expected a 3x range from a single parameter), and generated the appendix analysis. Dispatch, collection, analysis in ONE day. That's a week/s of deep focus work without the coding agent.
+
+### Where It Goes Wrong
+
+One time the agent submitted a code review for three packages without deploying or running end-to-end validation. I managed to catch it and told the agent: "We must test the entire pipeline before sending the review. Actually make sure this never happens again." To handle this, we added a pre-submission validation checklist as a permanent rule. The learning from this is that the agents at the current state always try to optimize for task completion and will skip validation unless we explicitly require it. One solution that seems to work well for this is to set up "hooks" that run automatically after builds. This way you can make the validation deteministic and dont rely on the agent to remember the routine, which becomes more of an issue with the increase in context sizes.\
+\
+Another pattern that I need to mention was when the paper draft had stale numbers from an old experiment. Agent's adversarial audit caught it, which led to a key statistic changing meaningfully when we switched to proper cross-validation. The old numbers were wrong and had been sitting in the draft for days. The agent can catch errors, but only when you tell it to look. It doesn't spontaneously doubt its own previous output, and in most cases, it will say that everything has been implemented and tested thoroughly. To create the adversarial audit, I have worked with the agent to read and compile the literature about what kind of steering intructions and methods tend to work well with coding agents. As a result, we created a manually invoked instruction document that I invoke whenever something smells fishy. Works pretty well so far.
+
+### Delegation as the Core Skill
+
+Here's what I think most people miss. Using these tools well is not about prompt engineering or knowing the right magic words. It's about delegation and evaluation which are the same skills you need to manage people, applied to a machine.\
+\
+I write instruction sets loaded by task phase: thinking, researching, implementing, reviewing. I run adversarial audits where the agent attacks its own work. I enforce checklists. I push back when the abstraction is wrong. It's less like pair programming and more like being a tech lead for a very fast, very literal engineer who occasionally produces brilliant work and occasionally tries to ship without testing.\
+\
+The evaluation part is critical and underappreciated. When the agent writes a proof, I need to know enough math to verify it. When it refactors a data mapping, I need to understand the schema well enough to judge whether the new abstraction is better. When it dispatches cloud jobs, I need to understand the API limits to know if the retry logic makes sense. I think I now understand what people meant when they said "AI amplifies your existing expertise". If you don't have the expertise, it amplifies your ability to produce confident-looking garbage.\
+\
+I wrote proofs, shipped a production API, dispatched thousands of training jobs, and debugged infrastructure WITHIN the same week and while training for a triathlon. A few months ago, that would have been a month of just the engineering work. The tools are crude, context windows degrade, and the agent drifts without anchoring. But for the kind of work where the hard part is the science and the design, and not the typing, it's already a different game for me. And to think I've only started investing into learning agentic coding this January.....
+
+Cheers, see yall next time!\

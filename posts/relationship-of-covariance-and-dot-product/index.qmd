@@ -1,0 +1,49 @@
+---
+title: "Relationship of covariance and dot product"
+date: "2022-02-01"
+categories: ["DataScienceBasics"]
+---
+
+### The Relationship Between Covariance and Dot Product
+
+Covariance and the dot product are related concepts in mathematics and statistics, particularly in the context of vectors and random variables. Here's how they are connected:
+
+#### Dot Product
+
+The dot product (also known as the scalar product) of two vectors $\mathbf{a}$ and $\mathbf{b}$ in $n$-dimensional space is given by:
+
+$$
+\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i b_i .
+$$
+
+This operation results in a single scalar value and provides a measure of the similarity between the two vectors. If the vectors point in the same direction, the dot product is positive and large; if they point in opposite directions, the dot product is negative; if they are orthogonal, the dot product is zero.
+
+#### Covariance
+
+Covariance is a measure of how much two random variables $X$ and $Y$ change together. It is given by:
+
+$$
+\operatorname{Cov}(X, Y) = \mathbb{E}\!\left[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])\right]
+$$
+
+Where $\mathbb{E}$ denotes the expected value. If the covariance is positive, the variables tend to increase together; if it is negative, one tends to increase when the other decreases.
+
+#### Relationship
+
+The relationship between covariance and the dot product can be seen in the context of centered random variables. If you consider the centered random variables:
+
+$$
+\tilde{X} = X - \mathbb{E}[X], \qquad \tilde{Y} = Y - \mathbb{E}[Y],
+$$
+
+the covariance between $X$ and $Y$ can be interpreted as the dot product of these centered variables in the space of random variables, normalized by the number of observations $n$:
+
+$$
+\operatorname{Cov}(X, Y) = \frac{1}{n} \sum_{i=1}^{n} \tilde{X}_i \tilde{Y}_i .
+$$
+
+Here, $\tilde{X}_i$ and $\tilde{Y}_i$ are the deviations from the mean of the random variables $X$ and $Y$ respectively. This sum is analogous to the dot product, where the sum of the products of corresponding elements gives a measure of the overall relationship between the two sets of values.
+
+#### Summary
+
+In summary, covariance can be viewed as a normalized dot product of centered random variables. Both operations measure how two sets of values relate to each other, with the dot product being a geometric measure in vector space and covariance being a statistical measure in the space of random variables.

@@ -1,0 +1,8 @@
+/.quarto/
+/_site/
+_migration/
+_archive/
+.DS_Store
+*.log
+
+**/*.quarto_ipynb
