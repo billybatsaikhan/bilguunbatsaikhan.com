@@ -4,7 +4,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "Hi, my name is Billy. I’m an Applied Scientist based in Japan.\nThis site is where I archive topics related to applied data science, machine learning, and causal inference — equal parts public notebook and reference for my future self.\nTopics I tend to write about:\n\nCausal inference (overlap, omitted-variable bias, recommendations as treatments)\nMachine learning in production / MLOps\nThe occasional deep dive when I fall down a rabbit hole\n\nIf something here is useful, wrong, or worth a conversation, reach out by email."
+    "text": "Hi, my name is Billy. I’m an Applied Scientist based in Japan.\nThis site is where I archive topics related to applied data science, machine learning, and causal inference — equal parts public notebook and reference for my future self.\nTopics I tend to write about:\n\nCausal inference (overlap, omitted-variable bias, recommendations as treatments)\nMachine learning in production / MLOps\nThe occasional deep dive when I fall down a rabbit hole\n\n\nStart here\nIf you’re new, these are the posts I’d point you to first:\n\nAssessing Overlap in Covariate Distributions — a walk through Chapter 14 of Imbens & Rubin, with the diagnostics worked out.\nEstimating the Distribution of Omitted Variable Bias — how much could an unobserved confounder move your estimate?\nRecommendations as Treatments — framing recsys through a causal-inference lens.\n\nIf something here is useful, wrong, or worth a conversation, reach out by email."
   },
   {
     "objectID": "posts/the-claude-architecture-from-xml-tags-to-100m-weight-updates/index.html",
