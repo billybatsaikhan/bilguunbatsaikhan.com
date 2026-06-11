@@ -49,12 +49,12 @@ In short, since the logged rewards are produced by the current production model,
 
 Let's consider an example:
 
-- $x$ — contextual features
-- $a$ — action/recommendation by the policy. For the sake of explanation, let's say we have 3 possible actions: $a_A$, $a_B$, $a_C$
-- $\pi$ — production policy. In this example, $\pi$'s propensity scores for the 3 possible actions are $0.75$, $0.15$, and $0.10$
-- $\pi_{\text{new}}$ — new policy. In this example, $\pi_{\text{new}}$'s propensity scores for the 3 possible actions are $0.30$, $0.6$, $0.10$
-- $n$ — total number of samples
-- $r$ — reward from the action
+- $x$ is the contextual features
+- $a$ is the action/recommendation by the policy. For the sake of explanation, let's say we have 3 possible actions: $a_A$, $a_B$, $a_C$
+- $\pi$ is the production policy. In this example, $\pi$'s propensity scores for the 3 possible actions are $0.75$, $0.15$, and $0.10$
+- $\pi_{\text{new}}$ is the new policy. In this example, $\pi_{\text{new}}$'s propensity scores for the 3 possible actions are $0.30$, $0.6$, $0.10$
+- $n$ is the total number of samples
+- $r$ is the reward from the action
 
 **Case #1:**
 
