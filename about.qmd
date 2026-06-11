@@ -1,18 +1,14 @@
 ---
 title: "About"
-image: profile.jpg
 about:
-  template: trestles
+  template: jolla
   links:
     - icon: github
       text: GitHub
-      href: https://github.com/bilguuniqo
+      href: https://github.com/billybatsaikhan
     - icon: envelope
       text: Email
       href: mailto:bilguuniqo@gmail.com
-    - icon: globe
-      text: Website
-      href: https://bilguunbatsaikhan.com
 ---
 
 Hi, my name is **Billy**. I'm an Applied Scientist based in Japan.
@@ -26,5 +22,13 @@ Topics I tend to write about:
 - Causal inference (overlap, omitted-variable bias, recommendations as treatments)
 - Machine learning in production / MLOps
 - The occasional deep dive when I fall down a rabbit hole
+
+### Start here
+
+If you're new, these are the posts I'd point you to first:
+
+- [Assessing Overlap in Covariate Distributions](../posts/causal-inference-assessing-overlap-in-covariate-distributions/) — a walk through Chapter 14 of Imbens & Rubin, with the diagnostics worked out.
+- [Estimating the Distribution of Omitted Variable Bias](../posts/gemini-deep-research-summary-of-the-state-of-ovb/) — how much could an unobserved confounder move your estimate?
+- [Recommendations as Treatments](../posts/recommendations-as-treatments/) — framing recsys through a causal-inference lens.
 
 If something here is useful, wrong, or worth a conversation, reach out by email.

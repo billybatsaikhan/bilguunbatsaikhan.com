@@ -18,11 +18,8 @@ website:
       - text: About
         href: about.qmd
       - icon: github
-        href: https://github.com/bilguuniqo
+        href: https://github.com/billybatsaikhan
         aria-label: GitHub
-      - icon: rss
-        href: index.xml
-        aria-label: RSS feed
   google-analytics: ""
   open-graph: true
 
