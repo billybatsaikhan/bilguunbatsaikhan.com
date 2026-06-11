@@ -64,3 +64,12 @@ When I reach for one of these, the question is never "what does it do" but "what
 - Stress the key assumption, not the data. More features won't save a design whose identification is broken.
 - Run a sensitivity analysis. "How big would an unobserved confounder have to be to flip this?" is often more honest than the point estimate.
 - Be suspicious of a clean answer from messy observational data. It usually means an assumption is doing more work than you realize.
+
+------------------------------------------------------------------------
+
+**More causal inference notes:**
+
+- [Assessing overlap in covariate distributions](../causal-inference-assessing-overlap-in-covariate-distributions/)
+- [Estimating the distribution of omitted variable bias](../gemini-deep-research-summary-of-the-state-of-ovb/)
+- [Recommendations as treatments](../recommendations-as-treatments/)
+

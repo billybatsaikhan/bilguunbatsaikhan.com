@@ -194,3 +194,12 @@ q_t = \frac{1}{N_t} \sum_{i:W_i=1} \varsigma_i
 $$
 
 ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+**More causal inference notes:**
+
+- [Causal inference cheatsheet](../causal-inference-cheatsheet/)
+- [Estimating the distribution of omitted variable bias](../gemini-deep-research-summary-of-the-state-of-ovb/)
+- [Recommendations as treatments](../recommendations-as-treatments/)
+

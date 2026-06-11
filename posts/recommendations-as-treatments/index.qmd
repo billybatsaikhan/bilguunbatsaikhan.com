@@ -2,9 +2,10 @@
 title: "Recommendations as treatments"
 date: "2024-06-17"
 description: "Joachims et al. reframe recommender systems as policies you can study with causal tools like inverse propensity weighting. My summary."
+categories: ["CausalInference", "Recommendations"]
 ---
 
-This is the summary of "Recommendations as Treatments" [(paper](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875&ved=2ahUKEwiIrfqMotqGAxXerlYBHcPQD70QFnoECBsQAQ&usg=AOvVaw1LcYU_15mHx4LhSr_GqiDS)) by Joachims et al.
+This is the summary of "Recommendations as Treatments" ([paper](https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/18141/18875)) by Joachims et al.
 
 ![Image created by Dall-e: "Humorous illustration of Inverse Propensity Weighting. It features a quirky professor explaining the concept to amused students in a classroom, with a seesaw representing the 'Treated' and 'Untreated' groups."](/images/2024/06/Screenshot-2024-06-17-at-13.26.47.png)
 
@@ -94,3 +95,12 @@ By weighting each observed interaction with the inverse propensity of the produc
 As illustrated in the examples above, this helps us to understand if the new policy performs better than the existing policy.
 
 This summary captures the main idea behind using Causal Inference techniques in the context of recommendation engines. I have left out several interesting gems presented in the original paper (e.g. counterfactual risk minimization, fairness of recommendation engines, etc.), so have a look at the paper if you are interested in learning more :).
+
+------------------------------------------------------------------------
+
+**More causal inference notes:**
+
+- [Causal inference cheatsheet](../causal-inference-cheatsheet/)
+- [Assessing overlap in covariate distributions](../causal-inference-assessing-overlap-in-covariate-distributions/)
+- [Estimating the distribution of omitted variable bias](../gemini-deep-research-summary-of-the-state-of-ovb/)
+

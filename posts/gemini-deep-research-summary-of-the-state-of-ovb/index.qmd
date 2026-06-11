@@ -132,3 +132,12 @@ Future research should focus on developing more robust and practical methods for
 25. Bayesian causal inference: A critical review and tutorial (Standard Format) - YouTube, accessed April 3, 2025, <https://www.youtube.com/watch?v=7Cwl6DgL64o>
 26. A Practical Introduction to Bayesian Estimation of Causal Effects ..., accessed April 3, 2025, <https://pmc.ncbi.nlm.nih.gov/articles/PMC8640942/>
 27. Bayesian Causal Inference for Observational Studies with Missingness in Covariates and Outcomes \| Biometrics \| Oxford Academic, accessed April 3, 2025, <https://academic.oup.com/biometrics/article/79/4/3624/7587588>
+
+------------------------------------------------------------------------
+
+**More causal inference notes:**
+
+- [Causal inference cheatsheet](../causal-inference-cheatsheet/)
+- [Assessing overlap in covariate distributions](../causal-inference-assessing-overlap-in-covariate-distributions/)
+- [Recommendations as treatments](../recommendations-as-treatments/)
+

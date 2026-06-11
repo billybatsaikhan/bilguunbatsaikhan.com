@@ -1,0 +1,23 @@
+---
+title: "Causal Inference"
+description: "My running notes on causal inference, in the order I'd hand them to someone starting out."
+listing:
+  - id: ci-posts
+    contents:
+      - "posts/causal-inference-cheatsheet/index.qmd"
+      - "posts/causal-inference-assessing-overlap-in-covariate-distributions/index.qmd"
+      - "posts/gemini-deep-research-summary-of-the-state-of-ovb/index.qmd"
+      - "posts/recommendations-as-treatments/index.qmd"
+    type: default
+    sort: false
+    fields: [title, description, date]
+---
+
+Most of what I write here circles back to one question: when can you actually call something a cause, and not just a correlation that happened to show up in the data?
+
+These are the posts where I work through that, roughly in the order I'd read them.
+
+Start with the [cheatsheet](posts/causal-inference-cheatsheet/) for the vocabulary and the assumption behind each method. Then [assessing overlap](posts/causal-inference-assessing-overlap-in-covariate-distributions/) goes deep on one specific diagnostic, whether your treatment and control groups are even comparable to begin with. From there, [omitted variable bias](posts/gemini-deep-research-summary-of-the-state-of-ovb/) asks the uncomfortable follow-up: how much could a confounder you never measured be moving your answer. And [recommendations as treatments](posts/recommendations-as-treatments/) is where it gets applied, treating a recommender system as a policy you can study with the same tools.
+
+::: {#ci-posts}
+:::
