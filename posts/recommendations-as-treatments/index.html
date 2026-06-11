@@ -75,6 +75,49 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <script defer="" src="https://cloud.umami.is/script.js" data-website-id="09f84a6f-1bc7-4240-8034-d0aa9525c3e6"></script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <meta property="og:title" content="Recommendations as treatments – Applied Data Science &amp; ML">
 <meta property="og:description" content="Joachims et al.&nbsp;reframe recommender systems as policies you can study with causal tools like inverse propensity weighting. My summary.">
@@ -204,28 +247,34 @@ ul.task-list li input[type="checkbox"] {
 <p>In short, since the logged rewards are produced by the current production model, we can debias them by using the inverse propensity weights of the production model.</p>
 <p>Let’s consider an example:</p>
 <ul>
-<li>x - contextual features</li>
-<li>a - action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: action_A, action_B, action_C</li>
-<li>π - production policy. In this example, the production policy π’s propensity scores for the 3 possible actions are: 0.75, 0.15, and 0.10</li>
-<li>π_new - new policy. In this example, the new policy π_new’s propensity scores for the 3 possible actions are: 0.30, 0.6, 0.10</li>
-<li>n - total number of samples</li>
-<li>r - reward from the action</li>
+<li><span class="math inline">x</span> — contextual features</li>
+<li><span class="math inline">a</span> — action/recommendation by the policy. For the sake of explanation, let’s say we have 3 possible actions: <span class="math inline">a_A</span>, <span class="math inline">a_B</span>, <span class="math inline">a_C</span></li>
+<li><span class="math inline">\pi</span> — production policy. In this example, <span class="math inline">\pi</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.75</span>, <span class="math inline">0.15</span>, and <span class="math inline">0.10</span></li>
+<li><span class="math inline">\pi_{\text{new}}</span> — new policy. In this example, <span class="math inline">\pi_{\text{new}}</span>’s propensity scores for the 3 possible actions are <span class="math inline">0.30</span>, <span class="math inline">0.6</span>, <span class="math inline">0.10</span></li>
+<li><span class="math inline">n</span> — total number of samples</li>
+<li><span class="math inline">r</span> — reward from the action</li>
 </ul>
 <p><strong>Case #1:</strong></p>
-<p>π recommends action_A, and the user likes the recommendation and clicks on it.</p>
-<p>The utility score of π will be 1 (total correct_recommendations / total recommendations = 1 / 1 = 1). On the other hand, the utility score of π_new will be:</p>
-<p>propensity of π_new for action_A * (1 / propensity of π for action_A) / total recommendations = 0.30 * (1 / 0.75) / 1 = 0.4</p>
-<p>Comparing the utilities, we observe the production policy π (utility=1) to be better than the new policy π_new (utility=0.4).</p>
+<p><span class="math inline">\pi</span> recommends <span class="math inline">a_A</span>, and the user likes the recommendation and clicks on it.</p>
+<p>The utility score of <span class="math inline">\pi</span> will be 1 (correct recommendations / total recommendations <span class="math inline">= 1/1 = 1</span>). The utility score of <span class="math inline">\pi_{\text{new}}</span> will be:</p>
+<p><span class="math display">
+\underbrace{0.30}_{\pi_{\text{new}}(a_A)} \cdot \frac{1}{\underbrace{0.75}_{\pi(a_A)}} \cdot \frac{1}{n} = 0.30 \cdot \frac{1}{0.75} \cdot \frac{1}{1} = 0.4
+</span></p>
+<p>Comparing the utilities, the production policy <span class="math inline">\pi</span> (utility <span class="math inline">=1</span>) looks better than the new policy <span class="math inline">\pi_{\text{new}}</span> (utility <span class="math inline">=0.4</span>).</p>
 <p><strong>Case #2:</strong></p>
-<p>π recommends action_A, and the user likes the recommendation and clicks on it. π_new also has the highest propensity score for action_A with 0.9.</p>
-<p>The utility score of π will be 1 (total correct_recommendations / total recommendations = 1 / 1 = 1). On the other hand, the utility score of π_new will be:</p>
-<p>propensity of π_new for action_A * (1 / propensity of π for action_A) / total recommendations = 0.90 * (1 / 0.75) / 1 = 1.2</p>
-<p>Comparing the utilities, we observe the new policy π_new (utility=1.2) to be better than the production policy π (utility=1).</p>
+<p><span class="math inline">\pi</span> recommends <span class="math inline">a_A</span>, the user clicks it, and <span class="math inline">\pi_{\text{new}}</span> also has the highest propensity for <span class="math inline">a_A</span> at <span class="math inline">0.9</span>.</p>
+<p>The utility score of <span class="math inline">\pi</span> will be 1. The utility score of <span class="math inline">\pi_{\text{new}}</span> will be:</p>
+<p><span class="math display">
+0.90 \cdot \frac{1}{0.75} \cdot \frac{1}{1} = 1.2
+</span></p>
+<p>Now the new policy <span class="math inline">\pi_{\text{new}}</span> (utility <span class="math inline">=1.2</span>) looks better than the production policy <span class="math inline">\pi</span> (utility <span class="math inline">=1</span>).</p>
 <p><strong>Case #3:</strong></p>
-<p>π recommends action_A, but the user doesn’t like the recommendation and clicks on action_B.</p>
-<p>The utility score of π will be 0 (total correct_recommendations / total recommendations = 0 / 1 = 0). On the other hand, the utility score of π_new will be:</p>
-<p>propensity of π_new for action_B * (1 / propensity of π for action_B) / total recommendations = 0.60 * (1 / 0.15) / 1 = 4</p>
-<p>Comparing the utilities, we observe the new policy π_new (utility=4) to be better than the production policy π (utility=0).</p>
+<p><span class="math inline">\pi</span> recommends <span class="math inline">a_A</span>, but the user doesn’t like it and clicks <span class="math inline">a_B</span> instead.</p>
+<p>The utility score of <span class="math inline">\pi</span> will be 0 (0 correct / 1 total). The utility score of <span class="math inline">\pi_{\text{new}}</span> will be:</p>
+<p><span class="math display">
+\underbrace{0.60}_{\pi_{\text{new}}(a_B)} \cdot \frac{1}{\underbrace{0.15}_{\pi(a_B)}} \cdot \frac{1}{n} = 0.60 \cdot \frac{1}{0.15} \cdot \frac{1}{1} = 4
+</span></p>
+<p>Comparing the utilities, the new policy <span class="math inline">\pi_{\text{new}}</span> (utility <span class="math inline">=4</span>) looks better than the production policy <span class="math inline">\pi</span> (utility <span class="math inline">=0</span>).</p>
 <hr>
 <p>In summary, &nbsp;the weighting mechanism of IPW helps us to understand how a new policy would have performed by explicitly handling the biases that exist in the offline evaluation data produced by the existing policy (e.g.&nbsp;the big get bigger effect).</p>
 <p>By weighting each observed interaction with the inverse propensity of the production policy, we are essentially placing more importance on samples with lower probability to be recommended by the production policy and placing lower importance on samples with higher probability.</p>
