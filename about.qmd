@@ -1,34 +1,18 @@
 ---
 title: "About"
-about:
-  template: jolla
-  links:
-    - icon: github
-      text: GitHub
-      href: https://github.com/billybatsaikhan
-    - icon: envelope
-      text: Email
-      href: mailto:bilguuniqo@gmail.com
 ---
 
-Hi, my name is **Billy**. I'm an Applied Scientist based in Japan.
+Hi, I'm Billy, an Applied Scientist at Amazon, based in Japan. My work sits between science and engineering: building ML and AI systems and shipping them to production, not just prototyping in a notebook.
 
-This site is where I archive topics related to applied data science, machine
-learning, and causal inference — equal parts public notebook and reference for
-my future self.
+The stack I work across:
 
-Topics I tend to write about:
+- **Causal inference**: treatment effects, heterogeneity (CATE), overlap and sensitivity diagnostics.
+- **ML in production**: modeling, evaluation, and the pipeline/MLOps work that keeps it alive after launch.
+- **Optimization and decision systems**: turning model outputs into something someone can act on.
+- **GenAI and LLM systems**: agentic tooling, multi-agent workflows, and eval frameworks.
 
-- Causal inference (overlap, omitted-variable bias, recommendations as treatments)
-- Machine learning in production / MLOps
-- The occasional deep dive when I fall down a rabbit hole
+This site is where I archive what I'm learning, equal parts public notebook and reference for my future self.
 
-### Start here
+### Reach out
 
-If you're new, these are the posts I'd point you to first:
-
-- [Assessing Overlap in Covariate Distributions](../posts/causal-inference-assessing-overlap-in-covariate-distributions/) — a walk through Chapter 14 of Imbens & Rubin, with the diagnostics worked out.
-- [Estimating the Distribution of Omitted Variable Bias](../posts/gemini-deep-research-summary-of-the-state-of-ovb/) — how much could an unobserved confounder move your estimate?
-- [Recommendations as Treatments](../posts/recommendations-as-treatments/) — framing recsys through a causal-inference lens.
-
-If something here is useful, wrong, or worth a conversation, reach out by email.
+If something here is useful, wrong, or worth a conversation, I'd rather be corrected than left with a mistake on the internet. Email: [bilguunbatsaikhan88@gmail.com](mailto:bilguunbatsaikhan88@gmail.com)

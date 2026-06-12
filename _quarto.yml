@@ -19,9 +19,6 @@ website:
         href: causal-inference.qmd
       - text: About
         href: about.qmd
-      - icon: github
-        href: https://github.com/billybatsaikhan
-        aria-label: GitHub
   open-graph: true
 
 format:
