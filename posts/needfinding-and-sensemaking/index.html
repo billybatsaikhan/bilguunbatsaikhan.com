@@ -6,9 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="My running notes on causal inference, in the order I’d hand them to someone starting out.">
+<meta name="dcterms.date" content="2026-06-30">
+<meta name="description" content="Needfinding, and why knowing the fix is the easy part.">
 
-<title>Causal Inference – Applied Data Science &amp; ML</title>
+<title>Building the Right Thing Is Hard – Applied Data Science &amp; ML</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -27,26 +28,24 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./favicon.ico" rel="icon">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9a9f58fe0166c709104ce41e5cd0fbc2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,83 +73,12 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-ci-posts .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title','listing-description','listing-date',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-ci-posts'] = new List('listing-ci-posts', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script defer="" src="https://cloud.umami.is/script.js" data-website-id="09f84a6f-1bc7-4240-8034-d0aa9525c3e6"></script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<meta property="og:title" content="Causal Inference – Applied Data Science &amp; ML">
-<meta property="og:description" content="My running notes on causal inference, in the order I’d hand them to someone starting out.">
+<meta property="og:title" content="Building the Right Thing Is Hard – Applied Data Science &amp; ML">
+<meta property="og:description" content="Needfinding, and why knowing the fix is the easy part.">
+<meta property="og:image" content="https://bilguunbatsaikhan.com/images/2026/06/needfinding-diagram.svg">
 <meta property="og:site_name" content="Applied Data Science &amp; ML">
 </head>
 
@@ -161,7 +89,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Applied Data Science &amp; ML</span>
     </a>
   </div>
@@ -172,15 +100,15 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./causal-inference.html" aria-current="page"> 
+    <a class="nav-link" href="../../causal-inference.html"> 
 <span class="menu-text">Causal Inference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -194,20 +122,31 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#needfinding-watch-dont-ask" id="toc-needfinding-watch-dont-ask" class="nav-link active" data-scroll-target="#needfinding-watch-dont-ask">Needfinding: watch, don’t ask</a></li>
+  <li><a href="#what-this-looks-like-outside-of-a-textbook" id="toc-what-this-looks-like-outside-of-a-textbook" class="nav-link" data-scroll-target="#what-this-looks-like-outside-of-a-textbook">What this looks like outside of a textbook</a></li>
+  <li><a href="#applying-this-at-work" id="toc-applying-this-at-work" class="nav-link" data-scroll-target="#applying-this-at-work">Applying this at work</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Causal Inference</h1>
-</div>
+<h1 class="title">Building the Right Thing Is Hard</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Know-how</div>
+  </div>
+  </div>
 
 <div>
   <div class="description">
-    My running notes on causal inference, in the order I’d hand them to someone starting out.
+    Needfinding, and why knowing the fix is the easy part.
   </div>
 </div>
 
@@ -215,6 +154,12 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 30, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -224,85 +169,38 @@ window.Quarto = {
 </header>
 
 
-<p>Most of what I write here circles back to one question: when can you actually call something a cause, and not just a correlation that happened to show up in the data?</p>
-<p>These are the posts where I work through that, roughly in the order I’d read them.</p>
-<p>Start with the <a href="posts/causal-inference-cheatsheet/">cheatsheet</a> for the vocabulary and the assumption behind each method. Then <a href="posts/causal-inference-assessing-overlap-in-covariate-distributions/">assessing overlap</a> goes deep on one specific diagnostic, whether your treatment and control groups are even comparable to begin with. From there, <a href="posts/gemini-deep-research-summary-of-the-state-of-ovb/">omitted variable bias</a> asks the uncomfortable follow-up: how much could a confounder you never measured be moving your answer. And <a href="posts/recommendations-as-treatments/">recommendations as treatments</a> is where it gets applied, treating a recommender system as a policy you can study with the same tools.</p>
-<div id="listing-ci-posts" class="quarto-listing quarto-listing-container-default">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDQ2hlYXRzaGVldA==" data-listing-date-sort="1705248000000" data-listing-file-modified-sort="1781158056597" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">Causal Inference cheatsheet</a>
-</h3>
-<div class="delink listing-description"><a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">
-<p>A single-page reference for causal inference methods and the load-bearing assumption behind each one, following Facure’s Causal Inference for the Brave and True.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/causal-inference-cheatsheet/index.html" class="no-external">
-<div class="listing-date">
-Jan 15, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDRGF0YVNjaWVuY2UlMkNEYXRhU2NpZW5jZUJhc2ljcyUyQ2hvd3Rv" data-listing-date-sort="1725120000000" data-listing-file-modified-sort="1781158056598" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1655">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">Causal Inference: Assessing Overlap in Covariate Distributions</a>
-</h3>
-<div class="delink listing-description"><a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">
-<p>Working through Chapter 14 of Imbens &amp; Rubin: the diagnostics for checking covariate overlap between treatment and control, with the formulas spelled out.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/causal-inference-assessing-overlap-in-covariate-distributions/index.html" class="no-external">
-<div class="listing-date">
-Sep 1, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="Q2F1c2FsSW5mZXJlbmNl" data-listing-date-sort="1743868800000" data-listing-file-modified-sort="1781158496690" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="987">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">Estimating the Distribution of Omitted Variable Bias in Causal Inference</a>
-</h3>
-<div class="delink listing-description"><a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">
-<p>How large would an unobserved confounder need to be to overturn your causal estimate? A survey of methods for bounding omitted variable bias.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html" class="no-external">
-<div class="listing-date">
-Apr 6, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="Q2F1c2FsSW5mZXJlbmNlJTJDUmVjb21tZW5kYXRpb25z" data-listing-date-sort="1718553600000" data-listing-file-modified-sort="1781158564050" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1078">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/recommendations-as-treatments/index.html" class="no-external">Recommendations as treatments</a>
-</h3>
-<div class="delink listing-description"><a href="./posts/recommendations-as-treatments/index.html" class="no-external">
-<p>Joachims et al.&nbsp;reframe recommender systems as policies you can study with causal tools like inverse propensity weighting. My summary.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/recommendations-as-treatments/index.html" class="no-external">
-<div class="listing-date">
-Jun 17, 2024
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div>
+<p>I’m working more closely with business teams this year. The failure mode I keep hitting is building something that addresses the symptom someone described in a meeting rather than the actual problem underneath. So I went looking for better frameworks, and one concept in particular gave me language for what “solve the real problem” actually requires.</p>
+<hr>
+<section id="needfinding-watch-dont-ask" class="level2">
+<h2 class="anchored" data-anchor-id="needfinding-watch-dont-ask">Needfinding: watch, don’t ask</h2>
+<p>People cannot tell you what they truly need. They’ve adapted to their problems, built workarounds, stopped noticing the pain. So if you just ask them what they want, you’ll get a description of a slightly better workaround.</p>
+<p>Needfinding says skip the interview for this reason. Go watch what they actually do instead. <strong>The mismatch between what people say and what they do is where the real problems are hiding.</strong></p>
+<p><img src="../../images/2026/06/needfinding-diagram.svg" class="img-fluid"></p>
+<p>PalmPilot is the classic example. Late 90s, every competitor was cramming desktop features into a small screen. Palm’s team watched people and realized nobody wanted a tiny computer. They wanted something faster than their paper day planner that fit in a pocket. So Palm shipped a device that did four things and turned on instantly. Competitors were solving “how do we shrink a PC?” when the actual problem was “my paper planner is too slow and I forget it at home.”</p>
+<p>Therefore the discipline is not jumping to a solution too early. The moment you name a solution, you’ve killed every other option. <strong>Stay on the need as long as you can stand it.</strong></p>
+<hr>
+</section>
+<section id="what-this-looks-like-outside-of-a-textbook" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-looks-like-outside-of-a-textbook">What this looks like outside of a textbook</h2>
+<p>Here’s where I get skeptical of the theory though. My wife works in luxury retail. When she talks about her day I can immediately spot things that could be better. Processes running on muscle memory from five years ago. Reporting that nobody reads but everyone produces. Workflows that exist because one person set them up and left.</p>
+<p>From the outside it’s so obvious. <strong>But knowing the fix and actually shipping it are completely different things.</strong> You can’t walk in and say “I watched how you work and here’s what’s wrong.” People have ownership over how they do their jobs. What looks like an inefficiency from outside might be absorbing complexity that would blow up somewhere else if you removed it. Or it might just be political, someone built that process and they’re still on the team.</p>
+<p>The paper doesn’t really address this. It talks about finding needs as if the hard part is intellectual. <strong>In practice though, the hard part is organizational.</strong> Getting people to accept that their current process has a problem. Getting time allocated to observing instead of just shipping the next thing.</p>
+<p><img src="../../images/2026/06/theory-vs-practice.svg" class="img-fluid"></p>
+<p>So the version of this I’m actually trying to practice is smaller than the theory suggests. Watch, notice, and then pick one thing where the cost of change is low enough that people will let you do it. Not the ten things you can see from the outside.</p>
+<hr>
+</section>
+<section id="applying-this-at-work" class="level2">
+<h2 class="anchored" data-anchor-id="applying-this-at-work">Applying this at work</h2>
+<p>When a stakeholder says “we need a dashboard that shows X,” that’s a solution, not a need. The need might be “I can’t tell if my campaign is working until two weeks after it ends.” Those lead to very different builds.</p>
+<p>So I’m trying to catch myself earlier now. Before scoping anything, spend time watching what people actually do, what workaround they’ve normalized, what would change if the friction disappeared.</p>
+<hr>
+<p><strong>References</strong></p>
+<ul>
+<li>Patnaik, D., and Becker, R. (1999). <em>Needfinding: The Why and How of Uncovering People’s Needs.</em> Design Management Journal.</li>
+</ul>
 
 
-
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

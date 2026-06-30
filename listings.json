@@ -11,6 +11,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/needfinding-and-sensemaking/index.html",
       "/posts/changes-to-my-workflow/index.html",
       "/posts/the-claude-architecture-from-xml-tags-to-100m-weight-updates/index.html",
       "/posts/gemini-deep-research-summary-of-the-state-of-ovb/index.html",
